@@ -1,0 +1,17 @@
+{
+  "name": "App",
+  "private": false,
+  "scripts": {
+    "start": "webpack-dev-server"
+  },
+  "dependencies": {
+    "@babel/core": "^7.11.6",
+    "fable-compiler": "^2.13.0",
+    "fable-loader": "^2.1.9",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
