@@ -1,8 +1,14 @@
 {
   "name": "clock-drawingcanvas",
   "private": false,
+  "version": "1.0.0",
+  "repository": {
+    "url": "https://github.com/davedawkins/Fable.React.DrawingCanvas.git"
+  },
   "scripts": {
-    "start": "webpack-dev-server"
+    "start": "webpack-dev-server",
+    "build": "webpack",
+    "publish": "node publish.js"
   },
   "dependencies": {
     "bulma": "^0.9.0",

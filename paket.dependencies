@@ -13,7 +13,12 @@ group Main
     nuget Fulma
 
 group Build
-  framework >= net45
-  source https://api.nuget.org/v3/index.json
+    source https://api.nuget.org/v3/index.json
+//    framework: netstandard2.0
+    storage: none
 
-  nuget FAKE ~> 4.64.6
+    nuget FSharp.Core
+    nuget Fake.Core.ReleaseNotes
+    nuget Fake.Core.Target
+    nuget Fake.DotNet.Cli
+    nuget Fake.IO.FileSystem

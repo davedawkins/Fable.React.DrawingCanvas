@@ -19,7 +19,7 @@ var CONFIG = {
     indexHtmlTemplate: './public/index.html',
     fsharpEntry: './app/App.fsproj',
     cssEntry: './app/sass/main.sass',
-    outputDir: './deploy/public',
+    outputDir: './dist',
     assetsDir: './public',
     devServerPort: 8080,
     // When using webpack-dev-server, you may need to redirect some calls
@@ -109,7 +109,7 @@ module.exports = (env) => {
     plugins: isProduction ?
         commonPlugins.concat([
             new MiniCssExtractPlugin({ filename: 'style.[name].[hash].css' }),
-            new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) }]),
+            new CopyWebpackPlugin({ patterns: [{ from: resolve(CONFIG.assetsDir) }] }),
         ])
         : commonPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),
