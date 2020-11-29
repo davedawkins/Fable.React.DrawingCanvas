@@ -5,16 +5,6 @@ open System
 open DrawingCanvas
 open Fable.Core
 
-// Helpers for loop/if constructs
-
-let loop coll fn = coll |> List.collect fn |> Insert
-
-let ifThen cond (succ : Lazy<DrawCommand list>) =
-    Insert (if cond then succ.Value else [])
-
-let ifThenElse cond (succ : Lazy<DrawCommand list>) (fail:Lazy<DrawCommand list>) =
-    Insert (if cond then succ.Value else fail.Value)
-
 let ornateHand r a = [
     Rotate a
     BeginPath

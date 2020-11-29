@@ -183,7 +183,6 @@ type DrawingCanvasProps =
 
 type DrawingCanvas(initialProps) as self =
     inherit Component<DrawingCanvasProps, obj>(initialProps)
-    //do base.setInitState ({| someState = 0 |})
 
     let mutable canvasElement: HTMLCanvasElement option = None
 
@@ -212,3 +211,28 @@ type DrawingCanvas(initialProps) as self =
     override this.componentDidUpdate(p, s) = drawNow ()
 
 let drawingcanvas props = ofType<DrawingCanvas, _, _> props []
+
+//
+// Helper functions for loop and conditional constructs when building List<DrawCommand>
+//
+// Eg
+//        ifThenElse (i % 5 = 0)
+//            (lazy [
+//                MoveTo(0., 6.)
+//                LineTo(4.0, 0.0)
+//                LineTo(0.0, -6.0)
+//                LineTo(-4.0, 0.0)
+//                LineTo(0.0, 6.0)
+//            ])
+//            (lazy [ Arc( 0., 0., 3., 0., 2. * pi, None ) ])
+//
+//        loop [0 .. 11] numeral
+//
+
+let loop coll fn = coll |> List.collect fn |> Insert
+
+let ifThen cond (succ : Lazy<DrawCommand list>) =
+    Insert (if cond then succ.Value else [])
+
+let ifThenElse cond (succ : Lazy<DrawCommand list>) (fail:Lazy<DrawCommand list>) =
+    Insert (if cond then succ.Value else fail.Value)
