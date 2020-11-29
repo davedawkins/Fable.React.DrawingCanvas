@@ -1,5 +1,6 @@
 # Fable React DrawingCanvas
 
+<img src="./demo.png" width="64">
 [Demo](https://davedawkins.github.io/Fable.React.DrawingCanvas/)
 
 This is a Fable React wrapper for `canvas` that allows you to declare a drawing like this:
@@ -63,6 +64,6 @@ The demo linked at the top of this page includes code to draw the clock in all t
 - `./app/ClockUsingFunction.fs`
 - `./app/ClockUsingList.fs`
 
-<img src="./demo.png" width="100">
+<img src="./demo.png" width="400">
 
 
