@@ -1,6 +1,9 @@
 # Fable React DrawingCanvas
 
+
 <img src="./demo.png" width="64">
+<a href="https://davedawkins.github.io/Fable.React.DrawingCanvas">Demo</a>
+
 
 [Demo](https://davedawkins.github.io/Fable.React.DrawingCanvas/)
 
