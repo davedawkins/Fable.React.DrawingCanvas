@@ -1,13 +1,12 @@
 # Fable React DrawingCanvas
 
+## Demo App
+
+This [demo app](https://davedawkins.github.io/Fable.React.DrawingCanvas/) shows a clock rendered with the DrawingCanvas, updating in real-time
 
 <img src="./demo.png" width="64">
-<a href="https://davedawkins.github.io/Fable.React.DrawingCanvas">Demo</a>
 
-
-[Demo](https://davedawkins.github.io/Fable.React.DrawingCanvas/)
-
------
+## About
 
 This is a Fable React wrapper for `canvas` that allows you to declare a drawing like this:
 
