@@ -71,4 +71,17 @@ The demo linked at the top of this page includes code to draw the clock in all t
 
 <img src="./demo.png" width="400">
 
+## Motivation
+
+This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm still fairly pleased with it. I like how the CE variant removes tuple-form arguments, for example. 
+
+## Issues
+
+- arc() and fillText() take optional arguments, but I haven't found a way to handle this nicely as a CE or DU. As a CE, you can make the member function take an optional argument, but the compiler isn't happy when you omit the value. Worse, you can't then pass "None", you have to pass the wrapped type (eg, bool). This means you can't tell arc() to draw the shortest arc by passing "None", you have to pass "true" or "false". It's better as the DU type "Arc" where you can pass "None", or "Some true|false".
+
+- The CE implementation is a lot of wrapper code around the DU, and I'm not sure how much value it adds. I didn't quite get the `for` and `if/then/else` constructs that I wanted, and from what I can tell, that's down to the use of `CustomExpression`. On the other hand, I'm very new to this, and I might be missing something. There's probably a good reason Maxime didn't go down this route.
+
+- I like that the CE and DU represent pure approaches to specifying the drawing, but I'm not 100% sure I'm following the React rules in executing the drawing. From what I can tell, you can do it during `componentDidMount` and `componentDidUpdate`, provided you have captured a reference to the DOM canvas using `Ref`.
+
+
 
