@@ -83,5 +83,13 @@ This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.co
 
 - I like that the CE and DU represent pure approaches to specifying the drawing, but I'm not 100% sure I'm following the React rules in executing the drawing. From what I can tell, you can do it during `componentDidMount` and `componentDidUpdate`, provided you have captured a reference to the DOM canvas using `Ref`.
 
+- Incomplete. I have enough of Canvas2D implemented to do the clock, but I need to add the rest of the API
+
+- Documentation. No docs yet
+
+## Availability
+
+I'd be happy to turn this into a Nuget package, add some documentation. I'm definitely going to use it for my own projects. Firstly, I want to rebuild [Wet Frank](http://www.wetfrank.com) in Fable with DrawingCanvas.
+
 
 
