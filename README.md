@@ -1,7 +1,10 @@
 # Fable React DrawingCanvas
 
 <img src="./demo.png" width="64">
+
 [Demo](https://davedawkins.github.io/Fable.React.DrawingCanvas/)
+
+-----
 
 This is a Fable React wrapper for `canvas` that allows you to declare a drawing like this:
 
