@@ -63,6 +63,6 @@ The demo linked at the top of this page includes code to draw the clock in all t
 - `./app/ClockUsingFunction.fs`
 - `./app/ClockUsingList.fs`
 
-![Clock](demo.png)
+![Clock](demo.png | width=100)
 
 
