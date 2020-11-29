@@ -73,7 +73,9 @@ The demo linked at the top of this page includes code to draw the clock in all t
 
 ## Motivation
 
-This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm still fairly pleased with it. I like how the CE variant removes tuple-form arguments, for example. 
+This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm pleased that it works. I like how the CE variant removes tuple-form arguments, for example. 
+
+I noticed that I would do a lot of `save`/`restore` sub-drawings so I wanted to build a construct in to do that automatically. If you see `Insert` anywhere, this takes a sub-drawing and automatically wraps it with `save`/`restore`. I wondered about doing with the same with `beginPath/fill` and `beginPath/stroke` sequences.
 
 ## Issues
 
