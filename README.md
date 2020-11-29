@@ -59,9 +59,9 @@ One more option is to pass redraw function from which you may launch missiles if
 
 The demo linked at the top of this page includes code to draw the clock in all three ways. See these files for comparison:
 
-- ./app/ClockUsingBuilder.fs
-- ./app/ClockUsingFunction.fs
-- ./app/ClockUsingList.fs
+- `./app/ClockUsingBuilder.fs`
+- `./app/ClockUsingFunction.fs`
+- `./app/ClockUsingList.fs`
 
 
 
