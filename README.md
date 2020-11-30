@@ -2,13 +2,10 @@
 
 ## Demo Apps
 
-This [demo app](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) shows a clock rendered with the DrawingCanvas, updating in real-time
-
-<img src="./demo.png" width="64">
-
-An interactive [Koch Snowflake app](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal).
-
-<img src="./fractal.png" width="64">
+|||
+|-|-|
+| <img src="./demo.png" width="64"> | [Real-time Analog Clock](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) |
+| <img src="./fractal.png" width="64"> | [Interactive Koch Snowflake](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal) |
 
 ## About
 
