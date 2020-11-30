@@ -2,7 +2,7 @@
 
 ## Demo App
 
-This [demo app](https://davedawkins.github.io/Fable.React.DrawingCanvas/) shows a clock rendered with the DrawingCanvas, updating in real-time
+This [demo app](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) shows a clock rendered with the DrawingCanvas, updating in real-time
 
 <img src="./demo.png" width="64">
 
