@@ -2,10 +2,9 @@
 
 ## Demo Apps
 
-|||
-|-|-|
 | <img src="./demo.png" width="64"> | [Real-time Analog Clock](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) |
-| <img src="./fractal.png" width="64"> | [Interactive Koch Snowflake](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal) |
+|-|-|
+| <img src="./fractal.png" width="64"> | __[Interactive Koch Snowflake](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal)__ |
 
 ## About
 
