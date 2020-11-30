@@ -1,10 +1,14 @@
 # Fable React DrawingCanvas
 
-## Demo App
+## Demo Apps
 
 This [demo app](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) shows a clock rendered with the DrawingCanvas, updating in real-time
 
 <img src="./demo.png" width="64">
+
+An interactive [Koch Snowflake app](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal).
+
+<img src="./fractal.png" width="64">
 
 ## About
 
