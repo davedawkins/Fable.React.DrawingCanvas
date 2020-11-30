@@ -153,6 +153,9 @@ type DrawCommandBuilder() =
     [<CustomOperation "insert">]
     member _.Insert(state:Drawing, drawing ) = (append state Save) @ (append drawing Restore)
 
+    [<CustomOperation "sub">]
+    member _.Sub(state:Drawing, drawing ) = state @ drawing
+
     [<CustomOperation "loop">]
     member _.Loop<'T>(state:Drawing, col:seq<'T>, f:('T -> Drawing) ) =
         let mutable result = state
