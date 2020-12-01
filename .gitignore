@@ -213,3 +213,5 @@ mocha/build/
 mocha/yarn\.lock
 
 interopFableFromJS/yarn\.lock
+
+src/.idea

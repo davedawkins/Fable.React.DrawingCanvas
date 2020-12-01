@@ -3,6 +3,8 @@ module ClockUsingList
 open Util
 open System
 open DrawingCanvas
+open DrawingCanvas.ListHelpers
+
 open Fable.Core
 
 let ornateHand r a = [
@@ -36,8 +38,7 @@ let clock (time : DateTime) =
         Restore
     ]
 
-    let marker i = [
-        Save
+    let marker i = preserve [
         Rotate( float i * pi / 30.0 )
         Translate( 0., -radius + 12. )
         BeginPath
@@ -49,9 +50,8 @@ let clock (time : DateTime) =
                 LineTo(-4.0, 0.0)
                 LineTo(0.0, 6.0)
             ])
-            (lazy [ Arc( 0., 0., 3., 0., 2. * pi, None ) ])
+            (lazy [ Arc( 0., 0., 3., 0., 2. * pi, false ) ])
         Fill
-        Restore
     ]
 
     // Clock
@@ -65,12 +65,12 @@ let clock (time : DateTime) =
         FillStyle (U3.Case1 "#555555")
 
         // Outside border
-        Insert [
+        preserve [
             LineWidth 6.0
             BeginPath
-            Arc ( 0., 0., radius, 0., angle 1.0, Some true )
+            Arc ( 0., 0., radius, 0., angle 1.0, false )
             Stroke
-        ]
+        ] |> Insert
 
         // Numbers
         loop [0 .. 11] numeral
@@ -79,40 +79,39 @@ let clock (time : DateTime) =
         loop [0 .. 59] marker
 
         // Second hand
-        Insert [
+        preserve [
             Rotate( pi * 2.0 * float time.Second / 60.0)
             BeginPath
             MoveTo(0.0, 0.0)
             LineTo(0.0, -(radius - 30.0))
             Stroke
-        ]
+        ] |> Insert
 
         // Minute hand
-        Insert
+        preserve
             (ornateHand (radius-30.0)
                 (angle (
                     float time.Minute / 60.0 +
-                    float time.Second / 3600.0 )))
+                    float time.Second / 3600.0 ))) |> Insert
 
         // Hour hand
-        Insert
+        preserve
             (ornateHand (radius-100.0)
                 (angle (
                     float time.Hour / 12.0 +
                     float time.Minute / (12.0 * 60.0) +
-                    float time.Second / (12.0 * 60.0 * 60.0))))
+                    float time.Second / (12.0 * 60.0 * 60.0)))) |> Insert
 
         // Centers
-        Insert [
-            Save
+        preserve [
             BeginPath
             FillStyle (U3.Case1 "#440000")
-            Arc( 0.0, 0.0, 10.0, 0.0, 2.0 * pi, None)
+            Arc( 0.0, 0.0, 10.0, 0.0, 2.0 * pi, false)
             Fill
             BeginPath
             FillStyle (U3.Case1 "#FFFF44")
-            Arc( 0.0, 0.0, 4.0, 0.0, 2.0 * pi, None)
+            Arc( 0.0, 0.0, 4.0, 0.0, 2.0 * pi, false)
             Fill
-            Restore
-        ]
+        ] |> Insert
    ]
+

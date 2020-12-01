@@ -2,10 +2,12 @@ module ClockUsingBuilder
 
 open Util
 open DrawingCanvas
+open DrawingCanvas.Builder
+
 open Fable.Core
 
 let ornateHand r a =
-    drawing {
+    preserve {
         rotate a
         beginPath
         strokeStyle (U3.Case1  "#440000")  // "#454545"
@@ -31,13 +33,11 @@ let clock (time : System.DateTime) =
     let angle n = n * pi2
     let fontScale = 2.75
 
-    let outer = drawing {
-        save
+    let outerBorder = preserve {
         lineWidth 6.
         beginPath
         arc 0. 0. radius 0. (angle 1.0) true
         stroke
-        restore
     }
 
     let center = drawing {
@@ -60,12 +60,11 @@ let clock (time : System.DateTime) =
         strokeStyle (U3.Case1 "#555555")
         fillStyle (U3.Case1 "#555555")
 
-        insert outer
+        insert outerBorder
 
         // Dot markings
         loop [ 0 .. 59 ] (fun i ->
-            drawing {
-                save
+            preserve {
                 rotate (float i * pi / 30.0)
                 translate 0. (-radius + 12.)
                 beginPath
@@ -81,30 +80,29 @@ let clock (time : System.DateTime) =
                     )
                     (lazy drawing { arc 0. 0. 3. 0. (2. * pi) false })
                 fill
-                restore
             })
 
         // Numbers
-        save
-        loop [ 0 .. 11 ] (fun i ->
-            drawing {
-                rotate (pi / 6.0)
-                save
-                scale 1.0 fontScale
-                fillText ((i+1) |> roman)  0.0 (-(radius - 24.) / fontScale) 999.0
-                restore
-            }
-        )
-        restore
+        insert (preserve {
+            loop [ 0 .. 11 ] (fun i ->
+                drawing {
+                    rotate (pi / 6.0)
+                    save
+                    scale 1.0 fontScale
+                    fillText ((i+1) |> roman)  0.0 (-(radius - 24.) / fontScale) 999.0
+                    restore
+                }
+            )
+        })
 
         // Second hand
-        save
-        rotate (pi * 2.0 * float time.Second / 60.0)
-        beginPath
-        moveTo 0.0 0.0
-        lineTo 0.0 -(radius - 30.0)
-        stroke
-        restore
+        insert (preserve {
+            rotate (pi * 2.0 * float time.Second / 60.0)
+            beginPath
+            moveTo 0.0 0.0
+            lineTo 0.0 -(radius - 30.0)
+            stroke
+        })
 
         // Minute hand
         insert (
