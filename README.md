@@ -10,7 +10,7 @@
 
 This is a Fable React wrapper for `canvas` that allows you to declare a drawing like this:
 
-```
+```fsharp
     open DrawingCanvas
     open DrawingCanvas.Builder
     
@@ -31,7 +31,7 @@ This is a Fable React wrapper for `canvas` that allows you to declare a drawing 
 
 If you wish, you can supply a list of `DrawCommand` instead:
 
-```
+```fsharp
     open DrawingCanvas
     open DrawingCanvas.ListHelpers
     
@@ -55,7 +55,7 @@ challenges when it comes to control structures such as loops and conditionals.
 
 One more option is to pass redraw function from which you may launch missiles if you wish (this is what all presentations about pure functions fear the most):
 
-```
+```fsharp
     open DrawingCanvas
 
     div [] [
@@ -86,7 +86,7 @@ The clock demo linked at the top of this page includes code to draw the clock in
 
 This example comes from `ClockUsingBuilder.fs`.
 
-```
+```fsharp
     open DrawingCanvas
     open DrawingCanvas.Builder
     
@@ -117,19 +117,61 @@ This example comes from `ClockUsingBuilder.fs`.
 | `drawing`    | Builds a plain old `DrawCommand list`  |
 | `preserve`   | A `drawing` wrapped in `Save` and `Restore` |
 | `loop`       | Collects all iterations of the given function over the given range, and inserts a flattened `DrawCommand list` into the current drawing |
-| `ifThenElse` | Inserts one of the two given lazy drawings |
+| `ifThenElse` | Inserts one of the two given drawings according to the boolean selector |
+|  --------    | The following aren't shown in the example:
+| `ifThen`     | Inserts the drawing according to the boolean selector  |
+| `strokepath` | A `drawing` wrapped in `BeginPath` and `Stroke` |
+| `fillpath`   | A `drawing` wrapped in `BeginPath` and `Fill` |
 
+Similar functions exist for building drawings as plain `DrawCommand list`.
 
-For the 
+```fsharp
+open DrawingCanvas
+open DrawingCanvas.ListHelpers
+
+let clockUsingList =
+    // ...
+    let marker i = preserve [
+        Rotate( float i * pi / 30.0 )
+        Translate( 0., -radius + 12. )
+        BeginPath
+        ifThenElse (i % 5 = 0)
+            (lazy [
+                MoveTo(0., 6.)
+                LineTo(4.0, 0.0)
+                LineTo(0.0, -6.0)
+                LineTo(-4.0, 0.0)
+                LineTo(0.0, 6.0)
+            ])
+            (lazy [ Arc( 0., 0., 3., 0., 2. * pi, false ) ])
+        Fill
+    ]
+    // ...
+    [
+        // Outside border
+        preserve [
+            LineWidth 6.0
+            BeginPath
+            Arc ( 0., 0., radius, 0., angle 1.0, false )
+            Stroke
+        ] |> Insert
+
+        // Numbers
+        loop [0 .. 11] numeral
+
+        // Markers
+        loop [0 .. 59] marker
+```
+
+Note the use of `lazy` on conditionals to prevent eager evaluation of drawings that will not be used.
+
 ## Motivation
 
 This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm pleased that it works. I like how the CE variant removes tuple-form arguments, for example. 
 
-I noticed that I would do a lot of `save`/`restore` sub-drawings so I wanted to build a construct in to do that automatically. If you see `Insert` anywhere, this takes a sub-drawing and automatically wraps it with `save`/`restore`. I wondered about doing with the same with `beginPath/fill` and `beginPath/stroke` sequences.
-
 ## Issues
 
-- The CE implementation is a lot of wrapper code around the DU, and I'm not sure how much value it adds. I didn't quite get the `for` and `if/then/else` constructs that I wanted, and from what I can tell, that's down to the use of `CustomExpression`. On the other hand, I'm very new to this, and I might be missing something. There's probably a good reason Maxime didn't go down this route.
+- The CE implementation is a lot of wrapper code around the DU, and I'm not sure how much value it adds. I didn't quite get the clean `for` and `if/then/else` constructs that I wanted, and from what I can tell, that's down to the use of `CustomExpression`. On the other hand, I'm very new to this, and I might be missing something. There's probably a good reason Maxime didn't go down this route. 
 
 - I like that the CE and DU represent pure approaches to specifying the drawing, but I'm not 100% sure I'm following the React rules in executing the drawing. From what I can tell, you can do it during `componentDidMount` and `componentDidUpdate`, provided you have captured a reference to the DOM canvas using `Ref`.
 
