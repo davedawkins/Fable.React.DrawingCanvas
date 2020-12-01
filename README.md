@@ -11,6 +11,9 @@
 This is a Fable React wrapper for `canvas` that allows you to declare a drawing like this:
 
 ```
+    open DrawingCanvas
+    open DrawingCanvas.Builder
+    
     div [] [
         drawingcanvas {
             Redraw = Drawing drawing {
@@ -18,9 +21,10 @@ This is a Fable React wrapper for `canvas` that allows you to declare a drawing 
                 translate 200.0 200.0
                 lineWidth 6.0
                 beginPath
-                arc 0.0 0.0 195.0 0.0 (2.0 * Math.PI) true
+                arc 0.0 0.0 195.0 0.0 (2.0 * Math.PI) false
                 stroke
             }
+            Props = [ ]
         }
     ]
 ```
@@ -28,6 +32,9 @@ This is a Fable React wrapper for `canvas` that allows you to declare a drawing 
 If you wish, you can supply a list of `DrawCommand` instead:
 
 ```
+    open DrawingCanvas
+    open DrawingCanvas.ListHelpers
+    
     div [] [
         drawingcanvas {
             Redraw = Drawing [
@@ -35,9 +42,10 @@ If you wish, you can supply a list of `DrawCommand` instead:
                 Translate (200.0, 200.0)
                 LineWidth 6.0
                 BeginPath
-                Arc (0.0, 0.0, 195.0, 0.0, (2.0 * Math.PI), Some true)
+                Arc (0.0, 0.0, 195.0, 0.0, (2.0 * Math.PI), false)
                 Stroke
             ]
+            Props = [ ]
         }
     ]
 ```
@@ -48,6 +56,8 @@ challenges when it comes to control structures such as loops and conditionals.
 One more option is to pass redraw function from which you may launch missiles if you wish (this is what all presentations about pure functions fear the most):
 
 ```
+    open DrawingCanvas
+
     div [] [
         drawingcanvas {
             Redraw = DrawFunction (fun ctx ->
@@ -56,14 +66,15 @@ One more option is to pass redraw function from which you may launch missiles if
                 ctx.translate(200.0, 200.0)
                 ctx.lineWidth <- 6.0
                 ctx.beginPath()
-                ctx.arc (0.0, 0.0, 195.0, 0.0, (2.0 * Math.PI), true)
+                ctx.arc (0.0, 0.0, 195.0, 0.0, (2.0 * Math.PI), false)
                 ctx.stroke()
             )
+            Props = [ ]
         }
     ]
 ```
 
-The demo linked at the top of this page includes code to draw the clock in all three ways. See these files for comparison:
+The clock demo linked at the top of this page includes code to draw the clock in all three ways. See these files for comparison:
 
 - `./app/ClockUsingBuilder.fs`
 - `./app/ClockUsingFunction.fs`
@@ -71,6 +82,45 @@ The demo linked at the top of this page includes code to draw the clock in all t
 
 <img src="./demo.png" width="400">
 
+## Control Structures
+
+This example comes from `ClockUsingBuilder.fs`.
+
+```
+    open DrawingCanvas
+    open DrawingCanvas.Builder
+    
+    drawing {
+        loop [ 0 .. 59 ] (fun i ->
+            preserve {
+                rotate (float i * pi / 30.0)
+                translate 0. (-radius + 12.)
+                beginPath
+
+                ifThenElse (i % 5 = 0)
+                    (lazy drawing {
+                            moveTo  0.   6.
+                            lineTo  4.0  0.0
+                            lineTo  0.0 -6.0
+                            lineTo -4.0  0.0
+                            lineTo  0.0  6.0
+                        }
+                    )
+                    (lazy drawing { arc 0. 0. 3. 0. (2. * pi) false })
+                fill
+            })
+    }
+```
+
+| Term         | Explanation |
+| ----         | ----------- |
+| `drawing`    | Builds a plain old `DrawCommand list`  |
+| `preserve`   | A `drawing` wrapped in `Save` and `Restore` |
+| `loop`       | Collects all iterations of the given function over the given range, and inserts a flattened `DrawCommand list` into the current drawing |
+| `ifThenElse` | Inserts one of the two given lazy drawings |
+
+
+For the 
 ## Motivation
 
 This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm pleased that it works. I like how the CE variant removes tuple-form arguments, for example. 
@@ -78,8 +128,6 @@ This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.co
 I noticed that I would do a lot of `save`/`restore` sub-drawings so I wanted to build a construct in to do that automatically. If you see `Insert` anywhere, this takes a sub-drawing and automatically wraps it with `save`/`restore`. I wondered about doing with the same with `beginPath/fill` and `beginPath/stroke` sequences.
 
 ## Issues
-
-- arc() and fillText() take optional arguments, but I haven't found a way to handle this nicely as a CE or DU. As a CE, you can make the member function take an optional argument, but the compiler isn't happy when you omit the value. Worse, you can't then pass "None", you have to pass the wrapped type (eg, bool). This means you can't tell arc() to draw the shortest arc by passing "None", you have to pass "true" or "false". It's better as the DU type "Arc" where you can pass "None", or "Some true|false".
 
 - The CE implementation is a lot of wrapper code around the DU, and I'm not sure how much value it adds. I didn't quite get the `for` and `if/then/else` constructs that I wanted, and from what I can tell, that's down to the use of `CustomExpression`. On the other hand, I'm very new to this, and I might be missing something. There's probably a good reason Maxime didn't go down this route.
 
