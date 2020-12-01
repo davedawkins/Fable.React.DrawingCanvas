@@ -91,7 +91,7 @@ let view model dispatch =
             a  [ Href "https://github.com/davedawkins/Fable.React.DrawingCanvas/tree/main/fractal" ] [str "Source" ]
         ]
     ]
-// https://github.com/davedawkins/Fable.React.DrawingCanvas/tree/main/fractal
+
 open Elmish.React
 
 // App
