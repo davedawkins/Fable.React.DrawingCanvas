@@ -123,7 +123,7 @@ This example comes from `ClockUsingBuilder.fs`.
 | `strokepath` | A `drawing` wrapped in `BeginPath` and `Stroke` |
 | `fillpath`   | A `drawing` wrapped in `BeginPath` and `Fill` |
 
-Similar functions exist for building drawings as plain `DrawCommand list`.
+Similar functions exist for building drawings as plain `DrawCommand list`, as seen in `ClockUsingList.fs`:
 
 ```fsharp
 open DrawingCanvas
