@@ -10,7 +10,7 @@ open Fable.Core
 let ornateHand r a = [
     Rotate a
     BeginPath
-    StrokeStyle (U3.Case1  "#440000") // "#454545"
+    StrokeColor "#440000" // "#454545"
     MiterLimit 100.0
     LineWidth 4.0
     MoveTo(0.0, 0.0)
@@ -61,8 +61,8 @@ let clock (time : DateTime) =
         Font "32px Times Roman"
         TextAlign "center"
         TextBaseline "top"
-        StrokeStyle (U3.Case1 "#555555")
-        FillStyle (U3.Case1 "#555555")
+        StrokeColor "#555555"
+        FillColor "#555555"
 
         // Outside border
         preserve [
@@ -105,11 +105,11 @@ let clock (time : DateTime) =
         // Centers
         preserve [
             BeginPath
-            FillStyle (U3.Case1 "#440000")
+            FillColor "#440000"
             Arc( 0.0, 0.0, 10.0, 0.0, 2.0 * pi, false)
             Fill
             BeginPath
-            FillStyle (U3.Case1 "#FFFF44")
+            FillColor "#FFFF44"
             Arc( 0.0, 0.0, 4.0, 0.0, 2.0 * pi, false)
             Fill
         ] |> Insert

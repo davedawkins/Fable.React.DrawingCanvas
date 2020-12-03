@@ -48,8 +48,8 @@ let drawFractal detail =
         fillRect 0.0 0.0 400.0 400.0
         translate 200.0 25.0
         scale 1.0 1.0
-        strokeStyle (U3.Case1 "white")
-        fillStyle (U3.Case1 "black")
+        strokeColor "white"
+        fillColor "black"
 
         insert
             (strokepath {

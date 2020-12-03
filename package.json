@@ -8,6 +8,8 @@
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack",
+    "start:clock": "webpack-dev-server --config webpack.clock.config.js",
+    "build:clock": "webpacK --config webpack.clock.config.js",
     "start:fractal": "webpack-dev-server --config webpack.fractal.config.js",
     "build:fractal": "webpacK --config webpack.fractal.config.js",
     "start:particles": "webpack-dev-server --config webpack.particles.config.js",

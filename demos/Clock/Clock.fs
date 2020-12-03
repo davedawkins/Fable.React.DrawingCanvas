@@ -1,4 +1,4 @@
-module App
+module CLock
 
 open System
 open Browser

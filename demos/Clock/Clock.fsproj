@@ -8,10 +8,10 @@
     <Compile Include="ClockUsingBuilder.fs" />
     <Compile Include="ClockUsingFunction.fs" />
     <Compile Include="ClockUsingList.fs" />
-    <Compile Include="App.fs" />
+    <Compile Include="Clock.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\Fable.React.DrawingCanvas\Fable.React.DrawingCanvas.fsproj" />
+    <ProjectReference Include="..\..\src\Fable.React.DrawingCanvas\Fable.React.DrawingCanvas.fsproj" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -10,7 +10,7 @@ let ornateHand r a =
     preserve {
         rotate a
         beginPath
-        strokeStyle (U3.Case1  "#440000")  // "#454545"
+        strokeColor "#440000"  // "#454545"
         miterLimit 100.0
         lineWidth 4.0
 
@@ -42,11 +42,11 @@ let clock (time : System.DateTime) =
 
     let center = drawing {
         beginPath
-        fillStyle (U3.Case1 "#440000")
+        fillColor "#440000"
         arc  0.0  0.0  10.0  0.0  (2.0 * pi) true
         fill
         beginPath
-        fillStyle (U3.Case1 "#FFFF44")
+        fillColor "#FFFF44"
         arc  0.0  0.0   4.0  0.0  (2.0 * pi) true
         fill
     }
@@ -57,8 +57,8 @@ let clock (time : System.DateTime) =
         font "32px Times-Roman"
         textAlign "center"
         textBaseline "top"
-        strokeStyle (U3.Case1 "#555555")
-        fillStyle (U3.Case1 "#555555")
+        strokeColor "#555555"
+        fillColor "#555555"
 
         insert outerBorder
 
