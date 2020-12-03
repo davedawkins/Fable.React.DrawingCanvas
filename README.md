@@ -14,7 +14,7 @@ This is a Fable React wrapper for `canvas` that allows you to declare a drawing 
 ```fsharp
     open DrawingCanvas
     open DrawingCanvas.Builder
-    
+
     div [] [
         drawingcanvas {
             Redraw = Drawing drawing {
@@ -35,7 +35,7 @@ If you wish, you can supply a list of `DrawCommand` instead:
 ```fsharp
     open DrawingCanvas
     open DrawingCanvas.ListHelpers
-    
+
     div [] [
         drawingcanvas {
             Redraw = Drawing [
@@ -90,7 +90,7 @@ This example comes from `ClockUsingBuilder.fs`.
 ```fsharp
     open DrawingCanvas
     open DrawingCanvas.Builder
-    
+
     drawing {
         loop [ 0 .. 59 ] (fun i ->
             preserve {
@@ -168,19 +168,92 @@ Note the use of `lazy` on conditionals to prevent eager evaluation of drawings t
 
 ## Motivation
 
-This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm pleased that it works. I like how the CE variant removes tuple-form arguments, for example. 
+This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm pleased that it works. I like how the CE variant removes tuple-form arguments, for example.
 
 ## Issues
 
-- The CE implementation is a lot of wrapper code around the DU, and I'm not sure how much value it adds. I didn't quite get the clean `for` and `if/then/else` constructs that I wanted, and from what I can tell, that's down to the use of `CustomExpression`. On the other hand, I'm very new to this, and I might be missing something. There's probably a good reason Maxime didn't go down this route. 
+- The CE implementation is a lot of wrapper code around the DU, and I'm not sure how much value it adds. I didn't quite get the clean `for` and `if/then/else` constructs that I wanted, and from what I can tell, that's down to the use of `CustomExpression`. On the other hand, I'm very new to this, and I might be missing something. There's probably a good reason Maxime didn't go down this route.
 
 - I like that the CE and DU represent pure approaches to specifying the drawing, but I'm not 100% sure I'm following the React rules in executing the drawing. From what I can tell, you can do it during `componentDidMount` and `componentDidUpdate`, provided you have captured a reference to the DOM canvas using `Ref`.
 
-- Incomplete. I have enough of Canvas2D implemented to do the clock, but I need to add the rest of the API
+- Incomplete. See `API Coverage` below
 
 - Documentation. No docs yet
 
-## Availability
+## API Coverage
+
+| ? | API Member |
+|-----|------------|
+| ✘ | canvas |
+| ✘ | currentTransform |
+| ✘ | direction |
+| ✔ | fillStyle |
+| ✘ | filter |
+| ✔ | font |
+| ✘ | globalAlpha |
+| ✘ | globalCompositeOperation |
+| ✘ | imageSmoothingEnabled |
+| ✘ | imageSmoothingQuality |
+| ✔ | lineCap |
+| ✔ | lineDashOffset |
+| ✔ | lineJoin |
+| ✔ | lineWidth |
+| ✔ | miterLimit |
+| ✔ | shadowBlur |
+| ✔ | shadowColor |
+| ✔ | shadowOffsetX |
+| ✔ | shadowOffsetY |
+| ✔ | strokeStyle |
+| ✔ | textAlign |
+| ✔ | textBaseline |
+| ✘ | addHitRegion() |
+| ✔ | arc() |
+| ✔ | arcTo() |
+| ✔ | beginPath() |
+| ✘ | bezierCurveTo() |
+| ✘ | clearHitRegions() |
+| ✔ | clearRect() |
+| ✘ | clip() |
+| ✘ | closePath() |
+| ✘ | createImageData() |
+| ✘ | createLinearGradient() |
+| ✘ | createPattern() |
+| ✘ | createRadialGradient() |
+| ✘ | drawFocusIfNeeded() |
+| ✘ | drawImage() |
+| ✘ | drawWidgetAsOnScreen() |
+| ✘ | drawWindow() |
+| ✘ | ellipse() |
+| ✔ | fill() |
+| ✔ | fillRect() |
+| ✔ | fillText() |
+| ✘ | getImageData() |
+| ✘ | getLineDash() |
+| ✘ | getTransform() |
+| ✘ | isPointInPath() |
+| ✘ | isPointInStroke() |
+| ✔ | lineTo() |
+| ✘ | measureText() |
+| ✔ | moveTo() |
+| ✘ | putImageData() |
+| ✘ | quadraticCurveTo() |
+| ✔ | rect() |
+| ✘ | removeHitRegion() |
+| ✘ | resetTransform() |
+| ✔ | restore() |
+| ✔ | rotate() |
+| ✔ | save() |
+| ✔ | scale() |
+| ✘ | scrollPathIntoView() |
+| ✔ | setLineDash() |
+| ✘ | setTransform() |
+| ✔ | stroke() |
+| ✔ | strokeRect() |
+| ✔ | strokeText() |
+| ✔ | transform() |
+| ✔ | translate() |
+|
+ |## Availability
 
 I'd be happy to turn this into a Nuget package, add some documentation. I'm definitely going to use it for my own projects. Firstly, I want to rebuild [Wet Frank](http://www.wetfrank.com) in Fable with DrawingCanvas.
 
