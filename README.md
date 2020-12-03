@@ -184,16 +184,16 @@ This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.co
 
 | ? | API Member |
 |-----|------------|
-| ✘ | canvas |
-| ✘ | currentTransform |
-| ✘ | direction |
+|   | canvas |
+|   | currentTransform |
+|   | direction |
 | ✓ | fillStyle |
-| ✘ | filter |
+|   | filter |
 | ✓ | font |
-| ✘ | globalAlpha |
-| ✘ | globalCompositeOperation |
-| ✘ | imageSmoothingEnabled |
-| ✘ | imageSmoothingQuality |
+|   | globalAlpha |
+|   | globalCompositeOperation |
+|   | imageSmoothingEnabled |
+|   | imageSmoothingQuality |
 | ✓ | lineCap |
 | ✓ | lineDashOffset |
 | ✓ | lineJoin |
@@ -206,47 +206,47 @@ This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.co
 | ✓ | strokeStyle |
 | ✓ | textAlign |
 | ✓ | textBaseline |
-| ✘ | addHitRegion() |
+|   | addHitRegion() |
 | ✓ | arc() |
 | ✓ | arcTo() |
 | ✓ | beginPath() |
-| ✘ | bezierCurveTo() |
-| ✘ | clearHitRegions() |
+|   | bezierCurveTo() |
+|   | clearHitRegions() |
 | ✓ | clearRect() |
-| ✘ | clip() |
-| ✘ | closePath() |
-| ✘ | createImageData() |
-| ✘ | createLinearGradient() |
-| ✘ | createPattern() |
-| ✘ | createRadialGradient() |
-| ✘ | drawFocusIfNeeded() |
-| ✘ | drawImage() |
-| ✘ | drawWidgetAsOnScreen() |
-| ✘ | drawWindow() |
-| ✘ | ellipse() |
+|   | clip() |
+|   | closePath() |
+|   | createImageData() |
+|   | createLinearGradient() |
+|   | createPattern() |
+|   | createRadialGradient() |
+|   | drawFocusIfNeeded() |
+|   | drawImage() |
+|   | drawWidgetAsOnScreen() |
+|   | drawWindow() |
+|   | ellipse() |
 | ✓ | fill() |
 | ✓ | fillRect() |
 | ✓ | fillText() |
-| ✘ | getImageData() |
-| ✘ | getLineDash() |
-| ✘ | getTransform() |
-| ✘ | isPointInPath() |
-| ✘ | isPointInStroke() |
+|   | getImageData() |
+|   | getLineDash() |
+|   | getTransform() |
+|   | isPointInPath() |
+|   | isPointInStroke() |
 | ✓ | lineTo() |
-| ✘ | measureText() |
+|   | measureText() |
 | ✓ | moveTo() |
-| ✘ | putImageData() |
-| ✘ | quadraticCurveTo() |
+|   | putImageData() |
+|   | quadraticCurveTo() |
 | ✓ | rect() |
-| ✘ | removeHitRegion() |
-| ✘ | resetTransform() |
+|   | removeHitRegion() |
+|   | resetTransform() |
 | ✓ | restore() |
 | ✓ | rotate() |
 | ✓ | save() |
 | ✓ | scale() |
-| ✘ | scrollPathIntoView() |
+|   | scrollPathIntoView() |
 | ✓ | setLineDash() |
-| ✘ | setTransform() |
+|   | setTransform() |
 | ✓ | stroke() |
 | ✓ | strokeRect() |
 | ✓ | strokeText() |
