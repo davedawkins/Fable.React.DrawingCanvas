@@ -255,8 +255,6 @@ This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.co
 | ✓ | translate() |
 
 ## Availability
-
-I'd be happy to turn this into a Nuget package, add some documentation. I'm definitely going to use it for my own projects. Firstly, I want to rebuild [Wet Frank](http://www.wetfrank.com) in Fable with DrawingCanvas.
-
+Available from NuGet as `Fable.React.DrawingCanvas`.
 
 
