@@ -1,5 +1,4 @@
-# Fable.React.DrawingCanvas
-[![Nuget](https://img.shields.io/nuget/v/Fable.React.DrawingCanvas.svg?maxAge=0&colorB=brightgreen)](https://www.nuget.org/packages/Fable.React.DrawingCanvas)
+# Fable.React.DrawingCanvas [![Nuget](https://img.shields.io/nuget/v/Fable.React.DrawingCanvas.svg?maxAge=0&colorB=brightgreen)](https://www.nuget.org/packages/Fable.React.DrawingCanvas)
 
 ## Demo Apps
 
