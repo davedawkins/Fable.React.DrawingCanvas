@@ -1,13 +1,12 @@
 {
-  "name": "clock-drawingcanvas",
+  "name": "fable-react-drawingcanvas",
   "private": false,
-  "version": "1.0.2",
+  "version": "1.0.1",
   "repository": {
     "url": "https://github.com/davedawkins/Fable.React.DrawingCanvas.git"
   },
   "scripts": {
-    "start": "webpack-dev-server",
-    "build": "webpack",
+    "build": "webpack -p",
     "start:clock": "webpack-dev-server --config webpack.clock.config.js",
     "build:clock": "webpacK --config webpack.clock.config.js",
     "start:fractal": "webpack-dev-server --config webpack.fractal.config.js",

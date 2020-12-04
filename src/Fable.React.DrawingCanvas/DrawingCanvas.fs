@@ -1,4 +1,4 @@
-module DrawingCanvas
+module Fable.React.DrawingCanvas
 
 open Fable.Core
 open Fable.React
@@ -10,82 +10,6 @@ type DrawStyle =
     | Color of string
     | Gradient of CanvasGradient
     | Pattern of CanvasPattern
-
-// Status
-(*
-
-    14 of 22
-    ✘ canvas
-    ✘ currentTransform
-    ✘ direction
-    ✔ fillStyle
-    ✘ filter
-    ✔ font
-    ✘ globalAlpha
-    ✘ globalCompositeOperation
-    ✘ imageSmoothingEnabled
-    ✘ imageSmoothingQuality
-    ✔ lineCap
-    ✔ lineDashOffset
-    ✔ lineJoin
-    ✔ lineWidth
-    ✔ miterLimit
-    ✔ shadowBlur
-    ✔ shadowColor
-    ✔ shadowOffsetX
-    ✔ shadowOffsetY
-    ✔ strokeStyle
-    ✔ textAlign
-    ✔ textBaseline
-
-    20 of 46
-    ✘ addHitRegion()
-    ✔ arc()
-    ✔ arcTo()
-    ✔ beginPath()
-    ✘ bezierCurveTo()
-    ✘ clearHitRegions()
-    ✔ clearRect()
-    ✘ clip()
-    ✘ closePath()
-    ✘ createImageData()
-    ✘ createLinearGradient()
-    ✘ createPattern()
-    ✘ createRadialGradient()
-    ✘ drawFocusIfNeeded()
-    ✘ drawImage()
-    ✘ drawWidgetAsOnScreen()
-    ✘ drawWindow()
-    ✘ ellipse()
-    ✔ fill()
-    ✔ fillRect()
-    ✔ fillText()
-    ✘ getImageData()
-    ✘ getLineDash()
-    ✘ getTransform()
-    ✘ isPointInPath()
-    ✘ isPointInStroke()
-    ✔ lineTo()
-    ✘ measureText()
-    ✔ moveTo()
-    ✘ putImageData()
-    ✘ quadraticCurveTo()
-    ✔ rect()
-    ✘ removeHitRegion()
-    ✘ resetTransform()
-    ✔ restore()
-    ✔ rotate()
-    ✔ save()
-    ✔ scale()
-    ✘ scrollPathIntoView()
-    ✔ setLineDash()
-    ✘ setTransform()
-    ✔ stroke()
-    ✔ strokeRect()
-    ✔ strokeText()
-    ✔ transform()
-    ✔ translate()
-*)
 
 let LineCapButt = "butt"
 let LineCapRound = "round"

@@ -16,26 +16,13 @@ const { Console } = require('console');
 var CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
     // See https://github.com/jantimon/html-webpack-plugin
-    indexHtmlTemplate: './public/index.html',
-    fsharpEntry: './app/App.fsproj',
-    cssEntry: './app/sass/main.sass',
-    outputDir: './dist/clock',
-    assetsDir: './dist/clock',
+    //indexHtmlTemplate: './public/index.html',
+    fsharpEntry: './src/Fable.React.DrawingCanvas/Fable.React.DrawingCanvas.fsproj',
+    //cssEntry: './app/sass/main.sass',
+    outputDir: './distpkg',
+    //assetsDir: './distpkg',
     devServerPort: 8080,
-    // When using webpack-dev-server, you may need to redirect some calls
-    // to a external API server. See https://webpack.js.org/configuration/dev-server/#devserver-proxy
-    devServerProxy: {
-        // redirect requests that start with /api/ to the server on port 8085
-        '/api/**': {
-            target: 'http://localhost:' + (process.env.SERVER_PROXY_PORT || "8085"),
-               changeOrigin: true
-           },
-        // redirect websocket requests that start with /socket/ to the server on the port 8085
-        '/socket/**': {
-            target: 'http://localhost:' + (process.env.SERVER_PROXY_PORT || "8085"),
-            ws: true
-           }
-       },
+
     babel: {
         presets: [
             ['@babel/preset-env', {
@@ -54,10 +41,10 @@ var CONFIG = {
 // The HtmlWebpackPlugin allows us to use a template for the index.html page
 // and automatically injects <script> or <link> tags for generated bundles.
 var commonPlugins = [
-    new HtmlWebpackPlugin({
-        filename: 'index.html',
-        template: resolve(CONFIG.indexHtmlTemplate)
-    })
+    //new HtmlWebpackPlugin({
+    //    filename: 'index.html',
+    //    template: resolve(CONFIG.indexHtmlTemplate)
+    //})
 ];
 
 module.exports = (env) => {
@@ -80,10 +67,9 @@ module.exports = (env) => {
     //    app: resolve(CONFIG.fsharpEntry)
     //},
     entry: isProduction ? {
-        app: [resolve(CONFIG.fsharpEntry), resolve(CONFIG.cssEntry)]
+        app: [resolve(CONFIG.fsharpEntry)]
     } : {
-        app: resolve(CONFIG.fsharpEntry),
-        style: resolve(CONFIG.cssEntry)
+        app: resolve(CONFIG.fsharpEntry)
     },
 
     // Add a hash to the output file name in production
@@ -109,7 +95,7 @@ module.exports = (env) => {
     plugins: isProduction ?
         commonPlugins.concat([
             new MiniCssExtractPlugin({ filename: 'style.[name].[hash].css' }),
-            new CopyWebpackPlugin({ patterns: [{ from: resolve(CONFIG.assetsDir) }] }),
+            //new CopyWebpackPlugin({ patterns: [{ from: resolve(CONFIG.assetsDir) }] }),
         ])
         : commonPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),
@@ -117,16 +103,6 @@ module.exports = (env) => {
     resolve: {
         // See https://github.com/fable-compiler/Fable/issues/1490
         symlinks: false
-    },
-    // Configuration for webpack-dev-server
-    devServer: {
-        publicPath: '/',
-        contentBase: resolve(CONFIG.assetsDir),
-        host: '0.0.0.0',
-        port: CONFIG.devServerPort,
-        proxy: CONFIG.devServerProxy,
-        hot: true,
-        inline: true
     },
     // - fable-loader: transforms F# into JS
     // - babel-loader: transforms JS to old syntax (compatible with old browsers)
@@ -151,19 +127,6 @@ module.exports = (env) => {
                     loader: 'babel-loader',
                     options: CONFIG.babel
                 },
-            },
-            {
-                test: /\.(sass|scss|css)$/,
-                use: [
-                    isProduction
-                        ? MiniCssExtractPlugin.loader
-                        : 'style-loader',
-                    'css-loader',
-                    {
-                        loader: 'sass-loader',
-                        options: { implementation: require('sass') }
-                    }
-                ],
             },
             {
                 test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)(\?.*)?$/,

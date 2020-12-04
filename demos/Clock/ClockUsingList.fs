@@ -2,8 +2,8 @@ module ClockUsingList
 
 open Util
 open System
-open DrawingCanvas
-open DrawingCanvas.ListHelpers
+open Fable.React.DrawingCanvas
+open Fable.React.DrawingCanvas.ListHelpers
 
 open Fable.Core
 

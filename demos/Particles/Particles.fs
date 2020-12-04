@@ -4,8 +4,8 @@ open Elmish
 open Fable.React
 open System
 open Fable.React.Props
-open DrawingCanvas
-open DrawingCanvas.Builder
+open Fable.React.DrawingCanvas
+open Fable.React.DrawingCanvas.Builder
 open Fable.Core
 open Fulma
 open Browser.Dom

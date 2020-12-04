@@ -1,8 +1,8 @@
 module ClockUsingBuilder
 
 open Util
-open DrawingCanvas
-open DrawingCanvas.Builder
+open Fable.React.DrawingCanvas
+open Fable.React.DrawingCanvas.Builder
 
 open Fable.Core
 

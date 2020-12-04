@@ -12,12 +12,12 @@
 This is a Fable React wrapper for `canvas` that allows you to declare a drawing like this:
 
 ```fsharp
-    open DrawingCanvas
-    open DrawingCanvas.Builder
+    open Fable.React.DrawingCanvas
+    open Fable.React.DrawingCanvas.Builder
 
     div [] [
         drawingcanvas {
-            Redraw = Drawing drawing {
+            Redraw = Drawing (drawing {
                 resize 400.00 400.0
                 translate 200.0 200.0
                 lineWidth 6.0
@@ -26,15 +26,15 @@ This is a Fable React wrapper for `canvas` that allows you to declare a drawing 
                 stroke
             }
             Props = [ ]
-        }
+        })
     ]
 ```
 
 If you wish, you can supply a list of `DrawCommand` instead:
 
 ```fsharp
-    open DrawingCanvas
-    open DrawingCanvas.ListHelpers
+    open Fable.React.DrawingCanvas
+    open Fable.React.DrawingCanvas.ListHelpers
 
     div [] [
         drawingcanvas {
@@ -57,7 +57,7 @@ challenges when it comes to control structures such as loops and conditionals.
 One more option is to pass redraw function from which you may launch missiles if you wish (this is what all presentations about pure functions fear the most):
 
 ```fsharp
-    open DrawingCanvas
+    open Fable.React.DrawingCanvas
 
     div [] [
         drawingcanvas {
@@ -88,8 +88,8 @@ The clock demo linked at the top of this page includes code to draw the clock in
 This example comes from `ClockUsingBuilder.fs`.
 
 ```fsharp
-    open DrawingCanvas
-    open DrawingCanvas.Builder
+    open Fable.React.DrawingCanvas
+    open Fable.React.DrawingCanvas.Builder
 
     drawing {
         loop [ 0 .. 59 ] (fun i ->
@@ -127,8 +127,8 @@ This example comes from `ClockUsingBuilder.fs`.
 Similar functions exist for building drawings as plain `DrawCommand list`, as seen in `ClockUsingList.fs`:
 
 ```fsharp
-open DrawingCanvas
-open DrawingCanvas.ListHelpers
+open Fable.React.DrawingCanvas
+open Fable.React.DrawingCanvas.ListHelpers
 
 let clockUsingList =
     // ...
@@ -258,4 +258,16 @@ Inspiration for using `Custom Expressions` for computation expressions came from
 ## Availability
 Available from NuGet as `Fable.React.DrawingCanvas`.
 
+## Revision History
+
+*1.0.1*
+- Module name "DrawingCanvas" -> "Fable.React.DrawingCanvas"
+- Update README
+- It's a breaking change, but I'm not going to bump the major
+until the API is a little more complete and I've got more testing done.
+
+----------
+
+*1.0.0*
+- Initial release
 

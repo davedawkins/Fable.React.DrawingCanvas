@@ -101,6 +101,7 @@ DocProject/Help/html
 # Click-Once directory
 publish/
 dist/
+distpkg/
 
 # Publish Web Output
 *.Publish.xml

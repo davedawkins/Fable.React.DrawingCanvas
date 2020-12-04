@@ -8,7 +8,7 @@ open Fable.React
 open Fable.React.Props
 open Fulma
 
-open DrawingCanvas
+open Fable.React.DrawingCanvas
 
 type DrawMethod =
     | Builder

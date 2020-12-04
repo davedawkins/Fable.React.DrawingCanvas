@@ -3,8 +3,8 @@ module Fractal
 open Elmish
 open Fable.React
 open Fable.React.Props
-open DrawingCanvas
-open DrawingCanvas.Builder
+open Fable.React.DrawingCanvas
+open Fable.React.DrawingCanvas.Builder
 open Fable.Core
 open Fulma
 

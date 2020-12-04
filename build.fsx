@@ -2,111 +2,110 @@
 #load "./.fake/build.fsx/intellisense.fsx"
 #r "netstandard"
 
+//open Fake.IO.Shell
 open Fake.Core
 open Fake.DotNet
 open Fake.IO
-open System
-open System.IO
-//open Fake
 
-let app = "./app"
+Target.initEnvironment ()
 
-let platformTool tool winTool =
-  let tool = if isUnix then tool else winTool
-  tool
-  |> ProcessHelper.tryFindFileOnPath
-  |> function Some t -> t | _ -> failwithf "%s not found" tool
+let sharedPath = Path.getFullName "./src/Shared"
+let serverPath = Path.getFullName "./src/Server"
+let deployDir = Path.getFullName "./deploy"
+let sharedTestsPath = Path.getFullName "./tests/Shared"
+let serverTestsPath = Path.getFullName "./tests/Server"
 
-let mutable dotnetCli = "dotnet"
-let mutable npmCli = "npm"
+let npm args workingDir =
+    let npmPath =
+        match ProcessUtils.tryFindFileOnPath "npm" with
+        | Some path -> path
+        | None ->
+            "npm was not found in path. Please install it and make sure it's available from your path. " +
+            "See https://safe-stack.github.io/docs/quickstart/#install-pre-requisites for more info"
+            |> failwith
 
-let run fileName args workingDir  =
-    printfn "CWD: %s" workingDir
-    let fileName, args =
-        if EnvironmentHelper.isUnix
-        then fileName, args else "cmd", ("/C " + fileName + " " + args)
-    let ok =
-        execProcess (fun info ->
-            info.FileName <- fileName
-            info.WorkingDirectory <- workingDir
-            info.Arguments <- args) TimeSpan.MaxValue
-    if not ok then failwith (sprintf "'%s> %s %s' task failed" workingDir fileName args)
+    let arguments = args |> String.split ' ' |> Arguments.OfArgs
 
-let delete file =
-    if File.Exists(file)
-    then DeleteFile file
-    else ()
+    Command.RawCommand (npmPath, arguments)
+    |> CreateProcess.fromCommand
+    |> CreateProcess.withWorkingDirectory workingDir
+    |> CreateProcess.ensureExitCode
+    |> Proc.run
+    |> ignore
 
-let cleanBundles() =
-    Path.Combine("dist", "bundle.js")
-        |> Path.GetFullPath
-        |> delete
-    Path.Combine("dist", "bundle.js.map")
-        |> Path.GetFullPath
-        |> delete
+let dotnet cmd workingDir =
+    let result = DotNet.exec (DotNet.Options.withWorkingDirectory workingDir) cmd ""
+    if result.ExitCode <> 0 then failwithf "'dotnet %s' failed in %s" cmd workingDir
 
-let cleanCacheDirs() =
-    // clean libraries
-    [ "Fable.React.Autocomplete" ]
-    |> List.map (fun lib -> "src" </> lib)
-    |> List.collect (fun lib -> [ lib </> "bin"; lib </> "obj" ])
-    |> List.append [ app </> "bin"; app </> "obj" ]
-    |> List.iter CleanDir
+Target.create "Clean" (fun _ -> Shell.cleanDir deployDir)
 
-Target "Clean" <| fun _ ->
-    cleanCacheDirs()
-    cleanBundles()
+Target.create "InstallClient" (fun _ -> npm "install" ".")
 
-Target "InstallNpmPackages" (fun _ ->
-  run "npm" "--version" __SOURCE_DIRECTORY__
-  run "yarn" "install" __SOURCE_DIRECTORY__
+Target.create "Bundle" (fun _ ->
+    dotnet (sprintf "publish -c Release -o \"%s\"" deployDir) serverPath
+    npm "run build" "."
 )
 
-Target "Restore" <| fun _ ->
-  run dotnetCli "restore" app
+Target.create "BundleForGHPages" (fun _ ->
+    npm "run build-gh-pages" "."
+)
 
-Target "Watch" <| fun _ ->
-    run npmCli "run start" app
+Target.create "Run" (fun _ ->
+    dotnet "build" sharedPath
+    [ async { dotnet "watch run" serverPath }
+      async { npm "run start" "." } ]
+    |> Async.Parallel
+    |> Async.RunSynchronously
+    |> ignore
+)
 
-let publish projectPath = fun () ->
+Target.create "RunTests" (fun _ ->
+    dotnet "build" sharedTestsPath
+    [ async { dotnet "watch run" serverTestsPath }
+      async { npm "run test:live" "." } ]
+    |> Async.Parallel
+    |> Async.RunSynchronously
+    |> ignore
+)
+
+Target.create "PublishApp" <| fun _ ->
+    npm "run publish" "."
+
+let (</>) a b = Path.combine a b
+
+let publish (projectPath : string) = fun _ ->
     [ projectPath </> "bin"
-      projectPath </> "obj" ] |> CleanDirs
-    run dotnetCli "restore --no-cache" projectPath
-    run dotnetCli "pack -c Release" projectPath
+      projectPath </> "obj" ] |> Shell.cleanDirs
+    dotnet "restore --no-cache" projectPath
+    dotnet "pack -c Release" projectPath
     let nugetKey =
-        match environVarOrNone "NUGET_KEY" with
+        match Environment.environVarOrNone "NUGET_KEY" with
         | Some nugetKey -> nugetKey
         | None -> failwith "The Nuget API key must be set in a NUGET_KEY environmental variable"
     let nupkg =
-        Directory.GetFiles(projectPath </> "bin" </> "Release")
+        System.IO.Directory.GetFiles(projectPath </> "bin" </> "Release")
         |> Seq.head
-        |> Path.GetFullPath
+        |> System.IO.Path.GetFullPath
 
     let pushCmd = sprintf "nuget push %s -s nuget.org -k %s" nupkg nugetKey
-    run dotnetCli pushCmd projectPath
+    System.Console.WriteLine(pushCmd)
+    dotnet pushCmd projectPath
 
-Target "PublishPkg" (publish ("src" </> "Fable.React.DrawingCanvas"))
+Target.create "PublishPkg" (publish ("src" </> "Fable.React.DrawingCanvas"))
 
-Target "Compile" <| fun _ ->
-    run npmCli "run build" app
-
-Target "PublishApp" <| fun _ ->
-    run "npm" "run publish" "."
+open Fake.Core.TargetOperators
 
 "Clean"
-  ==> "InstallNpmPackages"
-  ==> "Restore"
-  ==> "Watch"
+    ==> "InstallClient"
+    ==> "Run"
 
 "Clean"
-  ==> "InstallNpmPackages"
-  ==> "Restore"
-  ==> "Compile"
+    ==> "InstallClient"
+    ==> "RunTests"
 
 "Clean"
-  ==> "InstallNpmPackages"
-  ==> "Restore"
-  ==> "Compile"
-  ==> "PublishApp"
+    ==> "InstallClient"
+    ==> "BundleForGHPages"
+    ==> "PublishApp"
 
-RunTargetOrDefault "Compile"
+Target.runOrDefaultWithArguments "Bundle"
