@@ -170,6 +170,8 @@ Note the use of `lazy` on conditionals to prevent eager evaluation of drawings t
 
 This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm pleased that it works. I like how the CE variant removes tuple-form arguments, for example.
 
+Inspiration for using `Custom Expressions` for computation expressions came from seeing how Isaac Abraham's [Farmer](https://github.com/CompositionalIT/farmer) implements its builders (such as `webApp`, `arm` etc).
+
 ## Issues
 
 - The CE implementation is a lot of wrapper code around the DU, and I'm not sure how much value it adds. I didn't quite get the clean `for` and `if/then/else` constructs that I wanted, and from what I can tell, that's down to the use of `CustomExpression`. On the other hand, I'm very new to this, and I might be missing something. There's probably a good reason Maxime didn't go down this route.
