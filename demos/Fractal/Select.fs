@@ -4,8 +4,10 @@ open Fable.React
 open Fable.React.Props
 open Fulma
 
-open Fulma
-
+//
+// Alfonso's code as posted into a github issue
+// https://github.com/Fulma/Fulma/issues/215
+//
 module private SelectHelpers =
     let toStringWithOptional toString x =
         match x, toString with

@@ -6,22 +6,18 @@ open Fable.React
 open Fable.React.Props
 open Fable.React.DrawingCanvas
 open Fable.React.DrawingCanvas.Turtle
-open Fable.Core
 open Fulma
 open SelectForCustomTypes
 
+// Host shape for various fractals
 type Shape =
     | Triangle
     | Square
 
-(*  Sierpinksi
-    variables : F G
-    constants : + −
-    start : F−G−G
-    rules : (F → F−G+F+G−F), (G → GG)
-    angle : 120°
-*)
-type LindenMayerRule = {
+
+// https://en.wikipedia.org/wiki/L-system
+//
+type LindenmayerRule = {
     Shape: Shape
     Vars : string
     Start: string
@@ -66,10 +62,7 @@ let koch len angle shape fproduction = {
         )
 }
 
-
-//let kochAntiSnowflake = { kochSnowflake with Production = (fun _ -> "F-F++F-F") }
-
-let drawRule (rule : LindenMayerRule) maxDepth =
+let drawRule (rule : LindenmayerRule) maxDepth =
     let rec drawSequence (sequence:string) depth =
         turtle {
             repeat (sequence.ToCharArray()) (fun ch ->
@@ -111,24 +104,6 @@ let update msg model =
     | SetDetail n -> { model with Detail = max (min n 6) 0 }, Cmd.none
     | UpdateFractal f -> { model with Fractal = f }, Cmd.none
 
-let rec lindenMayer len angle level (linden:string) =
-
-    let cmd (ch : char)  =
-        match ch with
-        | 'F' -> if (level = 0) then turtle { forward len } else lindenMayer (len/3.0) angle (level-1) linden
-        | '-' -> turtle { turn -angle }
-        | '+' -> turtle { turn angle }
-        | _ -> invalidOp "Expecting one of F,+,-"
-
-    if (level = 0) then
-        cmd 'F'
-    else
-        turtle {
-            repeat
-                (linden.ToCharArray())
-                cmd
-        }
-
 let drawTriangle rule detail =
 
     turtle {
@@ -144,7 +119,7 @@ let drawTriangle rule detail =
         penDown
 
         // Triangle
-        repeat [1..3] (fun i -> turtle {
+        repeat [1..3] (fun _ -> turtle {
             sub (drawRule rule detail)
             turn 120.0
         })
@@ -153,19 +128,16 @@ let drawTriangle rule detail =
 let drawSquare rule detail =
 
     turtle {
-
-        // Move to top of triangle
         penUp
         forward 150.0
         turn 90.0
         forward 150.0
-        turn -90.0 // Pointing from top of triangle along right side
+        turn -90.0
 
         penColor "white"
         penDown
 
-        // Triangle
-        repeat [1..4] (fun i -> turtle {
+        repeat [1..4] (fun _ -> turtle {
             sub (drawRule rule detail)
             turn 90.0
         })
@@ -203,7 +175,7 @@ let view model dispatch =
             a  [ Href "https://github.com/davedawkins/Fable.React.DrawingCanvas" ] [str "Fable.React.DrawingCanvas" ]
         ]
         Text.p [ Props [ Style [ FontSize "60%" ] ] ] [
-            a  [ Href "https://github.com/davedawkins/Fable.React.DrawingCanvas/tree/main/fractal" ] [str "Source" ]
+            a  [ Href "https://github.com/davedawkins/Fable.React.DrawingCanvas/tree/main/demos/Fractal/Fractal.fs" ] [str "Source" ]
         ]
     ]
 

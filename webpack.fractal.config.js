@@ -16,11 +16,11 @@ const { Console } = require('console');
 var CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
     // See https://github.com/jantimon/html-webpack-plugin
-    indexHtmlTemplate: './demos/fractal/index.html',
-    fsharpEntry: './demos/fractal/Fractal.fsproj',
-    cssEntry: './demos/fractal/sass/main.sass',
+    indexHtmlTemplate: './demos/Fractal/index.html',
+    fsharpEntry: './demos/Fractal/Fractal.fsproj',
+    cssEntry: './demos/Fractal/sass/main.sass',
     outputDir: './dist/fractal',
-    assetsDir: './public',
+    assetsDir: './demos/Fractal/public',
     devServerPort: 8080,
     // When using webpack-dev-server, you may need to redirect some calls
     // to a external API server. See https://webpack.js.org/configuration/dev-server/#devserver-proxy
@@ -109,7 +109,7 @@ module.exports = (env) => {
     plugins: isProduction ?
         commonPlugins.concat([
             new MiniCssExtractPlugin({ filename: 'style.[name].[hash].css' }),
-            new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) }]),
+            //new CopyWebpackPlugin({ patterns: [{ from: resolve(CONFIG.assetsDir) }] }),
         ])
         : commonPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),

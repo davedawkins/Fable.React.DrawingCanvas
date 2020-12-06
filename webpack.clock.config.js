@@ -20,7 +20,7 @@ var CONFIG = {
     fsharpEntry: './demos/Clock/Clock.fsproj',
     cssEntry: './demos/Clock/sass/main.sass',
     outputDir: './dist/clock',
-    assetsDir: './dist/clock',
+    assetsDir: './demos/Clock/public',
     devServerPort: 8080,
     // When using webpack-dev-server, you may need to redirect some calls
     // to a external API server. See https://webpack.js.org/configuration/dev-server/#devserver-proxy
@@ -109,7 +109,7 @@ module.exports = (env) => {
     plugins: isProduction ?
         commonPlugins.concat([
             new MiniCssExtractPlugin({ filename: 'style.[name].[hash].css' }),
-            new CopyWebpackPlugin({ patterns: [{ from: resolve(CONFIG.assetsDir) }] }),
+            //new CopyWebpackPlugin({ patterns: [{ from: resolve(CONFIG.assetsDir) }] }),
         ])
         : commonPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),
