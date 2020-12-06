@@ -187,7 +187,7 @@ type Drawing = DrawCommand list
 type DrawFunction = CanvasRenderingContext2D -> unit
 
 type Redraw =
-    | Drawing of Drawing
+    | Drawing of (unit -> Drawing)
     | DrawFunction of DrawFunction
 
 type DrawingCanvasProps =
@@ -215,7 +215,7 @@ type DrawingCanvas(initialProps) as self =
                 let turtle = { IsPenDown = false }
                 ctx.canvas.width <- ce.offsetWidth
                 ctx.canvas.height <- ce.offsetHeight
-                d |> (ctx |> runCommands turtle)
+                d() |> (ctx |> runCommands turtle)
             | DrawFunction f -> f ctx
 
     override this.render() =
@@ -261,13 +261,14 @@ module Builder =
             []
 
         // Unwraps the function created by Delay. This allows us to apply the variant wrapping, if needed
-        member _.Run(funcToRun) =
-            let result : DrawCommand list = funcToRun()
-            match variant with
-                | Regular -> result
-                | SaveRestore -> (Canvas Save :: result) @ [ Canvas Restore ]
-                | FillPath -> (Canvas BeginPath :: result) @ [ Canvas Fill ]
-                | StrokePath -> (Canvas BeginPath :: result) @ [ Canvas Stroke ]
+        member _.Run(funcToRun) : (unit -> DrawCommand list)=
+            fun () ->
+                let result : DrawCommand list = funcToRun()
+                match variant with
+                    | Regular -> result
+                    | SaveRestore -> (Canvas Save :: result) @ [ Canvas Restore ]
+                    | FillPath -> (Canvas BeginPath :: result) @ [ Canvas Fill ]
+                    | StrokePath -> (Canvas BeginPath :: result) @ [ Canvas Stroke ]
 
         [<CustomOperation "resize">]
         member _.Resize(state:Drawing, w, h) = append state <| Resize (w,h)
@@ -380,24 +381,24 @@ module Builder =
         [<CustomOperation "strokeText">]
         member _.StrokeText(state:Drawing, text, x, y, ?maxw ) = append state <| StrokeText (text,x,y,maxw)
 
-        [<CustomOperation "insert">]
-        member _.Insert(state:Drawing, drawing ) = state @ drawing
+        [<CustomOperation "sub">]
+        member _.Sub(state:Drawing, drawing : unit -> Drawing) = state @ drawing()
 
-        [<CustomOperation "loop">]
-        member _.Loop<'T>(state:Drawing, col:seq<'T>, f:('T -> Drawing) ) =
+        [<CustomOperation "repeat">]
+        member _.Repeat<'T>(state:Drawing, col:seq<'T>, f:('T -> (unit ->Drawing)) ) =
             let mutable result = state
             for x in col do
                 let d = f x
-                result <- result @ d
+                result <- result @ d()
             result
 
         [<CustomOperation "ifThen">]
-        member _.IfThen(state:Drawing, cond, succ : Lazy<Drawing>) : Drawing =
-            if cond then (state @ succ.Value) else state
+        member _.IfThen(state:Drawing, cond, succ : unit -> Drawing) : Drawing =
+            if cond then (state @ succ()) else state
 
         [<CustomOperation "ifThenElse">]
-        member _.IfThenElse(state:Drawing, cond, succ : Lazy<Drawing>, fail : Lazy<Drawing>) =
-            if cond then (state @ succ.Value) else (state @ fail.Value)
+        member _.IfThenElse(state:Drawing, cond, succ : unit -> Drawing, fail : unit -> Drawing) =
+            if cond then (state @ succ()) else (state @ fail())
 
     let drawing = DrawCommandBuilder(Regular)
     let fillpath = DrawCommandBuilder(FillPath)
@@ -444,10 +445,10 @@ module Turtle =
             []
 
         // Unwraps the function created by Delay. This allows us to apply the variant wrapping, if needed
-        member _.Run( funcToRun ) : DrawCommand list =
-            //let result : TurtleCommand list = funcToRun()
-            let drawing = funcToRun()
-            (Canvas BeginPath :: drawing) @ [ Canvas Stroke ]
+        member _.Run( funcToRun ) : (unit -> DrawCommand list) =
+            fun () ->
+               let drawing = funcToRun()
+               (Canvas BeginPath :: drawing) @ [ Canvas Stroke ]
 
         [<CustomOperation "forward">]
         member _.Forward(state:Drawing, d) = append state <| Forward d
@@ -464,23 +465,23 @@ module Turtle =
         [<CustomOperation "penColor">]
         member _.PenColor(state:Drawing, c) = append state <| PenColor c
 
-        [<CustomOperation "insert">]
-        member _.Insert(state:Drawing, drawing ) = appendSub state drawing
+        [<CustomOperation "sub">]
+        member _.Sub(state:Drawing, drawing : unit -> Drawing ) = appendSub state <| drawing()
 
-        [<CustomOperation "loop">]
-        member _.Loop<'T>(state:Drawing, col:seq<'T>, f:('T -> Drawing) ) =
+        [<CustomOperation "repeat">]
+        member _.Repeat<'T>(state:Drawing, col:seq<'T>, f:('T -> (unit ->Drawing)) ) =
             let mutable result = state
             for x in col do
                 let d = f x
-                result <- appendSub result d
+                result <- appendSub result (d())
             result
 
         [<CustomOperation "ifThen">]
-        member _.IfThen(state:Drawing, cond, succ : Lazy<Drawing>) : Drawing =
-            if cond then appendSub state succ.Value else state
+        member _.IfThen(state:Drawing, cond, succ : unit -> Drawing) : Drawing =
+            if cond then appendSub state (succ()) else state
 
         [<CustomOperation "ifThenElse">]
-        member _.IfThenElse(state:Drawing, cond, succ : Lazy<Drawing>, fail : Lazy<Drawing>) =
-            if cond then (appendSub state succ.Value) else (appendSub state fail.Value)
+        member _.IfThenElse(state:Drawing, cond, succ : unit -> Drawing, fail : unit -> Drawing) =
+            if cond then (appendSub state (succ())) else (appendSub state (fail()))
 
     let turtle = TurtleBuilder()

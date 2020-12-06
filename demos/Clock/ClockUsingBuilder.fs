@@ -60,17 +60,17 @@ let clock (time : System.DateTime) =
         strokeColor "#555555"
         fillColor "#555555"
 
-        insert outerBorder
+        sub outerBorder
 
         // Dot markings
-        loop [ 0 .. 59 ] (fun i ->
+        repeat [ 0 .. 59 ] (fun i ->
             preserve {
                 rotate (float i * pi / 30.0)
                 translate 0. (-radius + 12.)
                 beginPath
 
                 ifThenElse (i % 5 = 0)
-                    (lazy drawing {
+                    (drawing {
                             moveTo  0.   6.
                             lineTo  4.0  0.0
                             lineTo  0.0 -6.0
@@ -78,13 +78,13 @@ let clock (time : System.DateTime) =
                             lineTo  0.0  6.0
                         }
                     )
-                    (lazy drawing { arc 0. 0. 3. 0. (2. * pi) false })
+                    (drawing { arc 0. 0. 3. 0. (2. * pi) false })
                 fill
             })
 
         // Numbers
-        insert (preserve {
-            loop [ 0 .. 11 ] (fun i ->
+        sub (preserve {
+            repeat [ 0 .. 11 ] (fun i ->
                 drawing {
                     rotate (pi / 6.0)
                     save
@@ -96,7 +96,7 @@ let clock (time : System.DateTime) =
         })
 
         // Second hand
-        insert (preserve {
+        sub (preserve {
             rotate (pi * 2.0 * float time.Second / 60.0)
             beginPath
             moveTo 0.0 0.0
@@ -105,7 +105,7 @@ let clock (time : System.DateTime) =
         })
 
         // Minute hand
-        insert (
+        sub (
             ornateHand
                 (radius-30.0)
                 (angle (
@@ -113,7 +113,7 @@ let clock (time : System.DateTime) =
                     float time.Second / 3600.0 )))
 
         // Hour hand
-        insert (
+        sub (
             ornateHand
                 (radius-100.0)
                 (angle (
@@ -121,5 +121,5 @@ let clock (time : System.DateTime) =
                     float time.Minute / (12.0 * 60.0) +
                     float time.Second / (12.0 * 60.0 * 60.0) )))
 
-        insert center
+        sub center
     }

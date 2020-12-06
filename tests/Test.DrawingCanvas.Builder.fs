@@ -28,7 +28,9 @@ let tests = testList "DrawingCanvas.Builder" [
     testCase "Builder ifThen true" <| fun () ->
         let d = drawing {
             save
-            ifThen true (lazy drawing { beginPath; fill })
+            ifThen
+                true
+                (drawing { beginPath; fill })
             restore
         }
 
@@ -44,7 +46,9 @@ let tests = testList "DrawingCanvas.Builder" [
     testCase "Builder IfThen false" <| fun () ->
         let d = drawing {
             save
-            ifThen false (lazy drawing { beginPath; fill })
+            ifThen
+                false
+                (drawing { beginPath; fill })
             restore
         }
 
@@ -58,7 +62,10 @@ let tests = testList "DrawingCanvas.Builder" [
     testCase "Builder IfThenElse true" <| fun () ->
         let d = drawing {
             save
-            ifThenElse true (lazy drawing { beginPath; fill }) (lazy drawing { beginPath; stroke })
+            ifThenElse
+                true
+                (drawing { beginPath; fill })
+                (drawing { beginPath; stroke })
             restore
         }
 
@@ -74,7 +81,7 @@ let tests = testList "DrawingCanvas.Builder" [
     testCase "Builder IfThenElse false" <| fun () ->
         let d = drawing {
             save
-            ifThenElse false (lazy drawing { beginPath; fill }) (lazy drawing { beginPath; stroke })
+            ifThenElse false (drawing { beginPath; fill }) (drawing { beginPath; stroke })
             restore
         }
 
@@ -129,6 +136,56 @@ let tests = testList "DrawingCanvas.Builder" [
             BeginPath
             Rect (0.0, 10.0, 20.0, 30.0)
             Fill
+        ]
+
+        expectDrawingsEqual expected d
+
+    testCase "Builder sub" <| fun () ->
+
+        let d0 = drawing {
+            rect 0. 10. 20. 30.
+        }
+
+        let d = fillpath {
+                sub d0
+            }
+
+        let expected = [
+            BeginPath
+            Rect (0.0, 10.0, 20.0, 30.0)
+            Fill
+        ]
+
+        expectDrawingsEqual expected d
+
+    testCase "Builder loop" <| fun () ->
+
+        let d = drawing {
+                repeat [0 .. 1] (fun i -> drawing {
+                    rect (float i) 10. 20. 30.
+                })
+            }
+
+        let expected = [
+            Rect (0.0, 10.0, 20.0, 30.0)
+            Rect (1.0, 10.0, 20.0, 30.0)
+        ]
+
+        expectDrawingsEqual expected d
+
+    testCase "Builder loop sub" <| fun () ->
+
+        let d0 i = drawing {
+            rect (float i) 10. 20. 30.
+        }
+
+        let d = drawing {
+                repeat [0 .. 1] d0
+            }
+
+        let expected = [
+            Rect (0.0, 10.0, 20.0, 30.0)
+            Rect (1.0, 10.0, 20.0, 30.0)
         ]
 
         expectDrawingsEqual expected d

@@ -9,6 +9,6 @@ let expectListEqual (expected:List<'T>) (value: List<'T>) =
     for p in List.zip expected value do
         Expect.areEqual (fst p) (snd p)
 
-let expectDrawingsEqual (expected:CanvasCommand list) (value:DrawCommand list) =
+let expectDrawingsEqual (expected:CanvasCommand list) (value:unit -> DrawCommand list) =
     let turtle = { IsPenDown = false }
-    expectListEqual expected (value |> translate turtle |> Seq.toList)
+    expectListEqual expected (value() |> translate turtle |> Seq.toList)

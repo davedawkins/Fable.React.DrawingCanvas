@@ -25,7 +25,7 @@ let tests = testList "DrawingCanvas.Turtle" [
     testCase "Turtle nested" <| fun () ->
         let d = turtle {
             penDown
-            insert (turtle {
+            sub (turtle {
                 turn 180.0
             })
             forward 1.0
@@ -41,10 +41,53 @@ let tests = testList "DrawingCanvas.Turtle" [
         ]
         expectDrawingsEqual expected d
 
+    testCase "Turtle repeat" <| fun () ->
+        let d = turtle {
+            penDown
+            repeat [1..2] (fun i -> (turtle {
+                turn (float i * 180.0)
+            }))
+            forward 1.0
+        }
+
+        let expected = [
+            BeginPath
+            MoveTo (0.0,0.0)
+            Rotate (System.Math.PI)
+            Rotate (System.Math.PI * 2.0)
+            LineTo (1.0,0.0)
+            Translate (1.0,0.0)
+            Stroke
+        ]
+        expectDrawingsEqual expected d
+
+    testCase "Turtle repeat sub" <| fun () ->
+        let d0 i = turtle {
+            turn (float i * 180.0)
+        }
+
+        let d = turtle {
+            penDown
+            repeat [1..2] d0
+            forward 1.0
+        }
+
+        let expected = [
+            BeginPath
+            MoveTo (0.0,0.0)
+            Rotate (System.Math.PI)
+            Rotate (System.Math.PI * 2.0)
+            LineTo (1.0,0.0)
+            Translate (1.0,0.0)
+            Stroke
+        ]
+        expectDrawingsEqual expected d
+
+
     testCase "Turtle ifThen" <| fun () ->
         let d = turtle {
             penDown
-            ifThen true (lazy turtle { turn 180. })
+            ifThen true (turtle { turn 180. })
         }
 
         let expected = [
@@ -59,12 +102,12 @@ let tests = testList "DrawingCanvas.Turtle" [
 
     testCase "Turtle ifThenFn" <| fun () ->
         let tfn() = turtle {
-            ifThen true (lazy turtle { turn 180. })
+            ifThen true ( turtle { turn 180. })
         }
 
         let d = turtle {
             penDown
-            insert (tfn())
+            sub (tfn())
         }
 
         let expected = [
@@ -114,7 +157,7 @@ let tests = testList "DrawingCanvas.Turtle" [
             penUp
             forward 1.
             penDown
-            insert f
+            sub f
             penUp
             forward 3.
         }

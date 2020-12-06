@@ -108,7 +108,8 @@ module.exports = (env) => {
     //      - HotModuleReplacementPlugin: Enables hot reloading when code changes without refreshing
     plugins: isProduction ?
         commonPlugins.concat([
-            new MiniCssExtractPlugin({ filename: 'style.[name].[hash].css' })
+            new MiniCssExtractPlugin({ filename: 'style.[name].[hash].css' }),
+            new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) }]),
         ])
         : commonPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),
@@ -120,7 +121,7 @@ module.exports = (env) => {
     // Configuration for webpack-dev-server
     devServer: {
         publicPath: '/',
-        contentBase: resolve(CONFIG.outputDir),
+        contentBase: resolve(CONFIG.assetsDir),
         host: '0.0.0.0',
         port: CONFIG.devServerPort,
         proxy: CONFIG.devServerProxy,

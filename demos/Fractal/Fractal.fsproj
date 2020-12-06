@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Select.fs" />
     <Compile Include="Fractal.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -2,10 +2,10 @@
 
 ## Demo Apps
 
-| <img src="./demo.png" width="64"> | [Real-time Analog Clock](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) |
+| <img src="./iamges/demo.png" width="64"> | [Real-time Analog Clock](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) |
 |-|-|
-| <img src="./fractal.png" width="64"> | __[Interactive Koch Snowflake](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal)__ |
-| <img src="./particles.png" width="64"> | __[20,000 Particles](https://davedawkins.github.io/Fable.React.DrawingCanvas/particles)__ |
+| <img src="./images/fractal.png" width="64"> | __[Interactive Koch Snowflake](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal)__ |
+| <img src="./images/particles.png" width="64"> | __[20,000 Particles](https://davedawkins.github.io/Fable.React.DrawingCanvas/particles)__ |
 
 ## About
 
@@ -30,30 +30,6 @@ This is a Fable React wrapper for `canvas` that allows you to declare a drawing 
     ]
 ```
 
-If you wish, you can supply a list of `DrawCommand` instead:
-
-```fsharp
-    open Fable.React.DrawingCanvas
-    open Fable.React.DrawingCanvas.ListHelpers
-
-    div [] [
-        drawingcanvas {
-            Redraw = Drawing [
-                Resize (400.0, 400.0)
-                Translate (200.0, 200.0)
-                LineWidth 6.0
-                BeginPath
-                Arc (0.0, 0.0, 195.0, 0.0, (2.0 * Math.PI), false)
-                Stroke
-            ]
-            Props = [ ]
-        }
-    ]
-```
-
-This demonstrates that `drawing { ... }` is just a builder that generates a `DrawCommand list`. Both approaches present their
-challenges when it comes to control structures such as loops and conditionals.
-
 One more option is to pass redraw function from which you may launch missiles if you wish (this is what all presentations about pure functions fear the most):
 
 ```fsharp
@@ -75,13 +51,12 @@ One more option is to pass redraw function from which you may launch missiles if
     ]
 ```
 
-The clock demo linked at the top of this page includes code to draw the clock in all three ways. See these files for comparison:
+The clock demo linked at the top of this page includes code to draw the clock in both ways. See these files for comparison:
 
 - `./app/ClockUsingBuilder.fs`
 - `./app/ClockUsingFunction.fs`
-- `./app/ClockUsingList.fs`
 
-<img src="./demo.png" width="400">
+<img src="./iamges/demo.png" width="400">
 
 ## Control Structures
 
@@ -92,14 +67,14 @@ This example comes from `ClockUsingBuilder.fs`.
     open Fable.React.DrawingCanvas.Builder
 
     drawing {
-        loop [ 0 .. 59 ] (fun i ->
+        repeat [ 0 .. 59 ] (fun i ->
             preserve {
                 rotate (float i * pi / 30.0)
                 translate 0. (-radius + 12.)
                 beginPath
 
                 ifThenElse (i % 5 = 0)
-                    (lazy drawing {
+                    (drawing {
                             moveTo  0.   6.
                             lineTo  4.0  0.0
                             lineTo  0.0 -6.0
@@ -107,7 +82,7 @@ This example comes from `ClockUsingBuilder.fs`.
                             lineTo  0.0  6.0
                         }
                     )
-                    (lazy drawing { arc 0. 0. 3. 0. (2. * pi) false })
+                    (drawing { arc 0. 0. 3. 0. (2. * pi) false })
                 fill
             })
     }
@@ -117,70 +92,98 @@ This example comes from `ClockUsingBuilder.fs`.
 | ----         | ----------- |
 | `drawing`    | Builds a plain old `DrawCommand list`  |
 | `preserve`   | A `drawing` wrapped in `Save` and `Restore` |
-| `loop`       | Collects all iterations of the given function over the given range, and inserts a flattened `DrawCommand list` into the current drawing |
+| `repeat`     | Collects all iterations of the given function over the given range, and inserts a flattened `DrawCommand list` into the current drawing |
 | `ifThenElse` | Inserts one of the two given drawings according to the boolean selector |
 |  --------    | The following aren't shown in the example:
 | `ifThen`     | Inserts the drawing according to the boolean selector  |
 | `strokepath` | A `drawing` wrapped in `BeginPath` and `Stroke` |
 | `fillpath`   | A `drawing` wrapped in `BeginPath` and `Fill` |
+| `sub` d      | Include the sub-drawing d at this point. This is how you include drawings from functions
 
-Similar functions exist for building drawings as plain `DrawCommand list`, as seen in `ClockUsingList.fs`:
 
+The type of `drawing { }` is now `unit -> Drawing`. This allowed the removal of the `lazy` keyword used in the previous release.
+
+The type `Drawing` is aliased to `DrawCommand list`.
+
+## Turtle Graphics
+
+You can also build drawings using turtle graphics. The `Fractal` demo is now implemented purely in terms of `turtle { .. }`.
+
+<img src="./images/sierpinski.png" width='400">
+
+The type of `turtle { }` is `unit ->Drawing`.
+
+Supported commands are
+
+| Command             | Description  |
+|---------------------|--------------|
+| `penDown`           | Set pen down |
+| `penUp`             | Set pen up   |
+| `penColor c`        | Set pen colour |
+| `forward n`         | Move forward distance n. A line will be drawn if the pen is down |
+| `turn a`            | Turn by a degrees |
+| `ifThen d`          | Conditional sub turtle drawing |
+| `ifThenElse d1 d2`  | Alternate sub turtle drawings |
+| `repeat seq<T> f`   | Repeated sub turtle drawing returned from function f. Type of f is `T -> (unit -> Drawing)`|
+| `sub` d             | Include the sub-drawing d at this point. This is how you include drawings from functions
+
+More commands are on their way.
+
+Examples that draw squares:
 ```fsharp
-open Fable.React.DrawingCanvas
-open Fable.React.DrawingCanvas.ListHelpers
 
-let clockUsingList =
-    // ...
-    let marker i = preserve [
-        Rotate( float i * pi / 30.0 )
-        Translate( 0., -radius + 12. )
-        BeginPath
-        ifThenElse (i % 5 = 0)
-            (lazy [
-                MoveTo(0., 6.)
-                LineTo(4.0, 0.0)
-                LineTo(0.0, -6.0)
-                LineTo(-4.0, 0.0)
-                LineTo(0.0, 6.0)
-            ])
-            (lazy [ Arc( 0., 0., 3., 0., 2. * pi, false ) ])
-        Fill
-    ]
-    // ...
-    [
-        // Outside border
-        preserve [
-            LineWidth 6.0
-            BeginPath
-            Arc ( 0., 0., radius, 0., angle 1.0, false )
-            Stroke
-        ] |> Insert
+    // Long-hand
+    turtle {
+        penDown
+        penColor "red"
+        forward 100
+        turn 90
+        forward 100
+        turn 90
+        forward 100
+        turn 90
+        forward 100
+        turn 90
+    }
 
-        // Numbers
-        loop [0 .. 11] numeral
+    // Using repeat + lambda
+    turtle {
+        penDown
+        penColor "red"
+        repeat [1..4] (fun _ -> turtle {
+            forward 100
+            turn 90
+        })
+    }
 
-        // Markers
-        loop [0 .. 59] marker
+    // Using repeat + function (note iteration variable i)
+    let side d i = turtle { forward d; turn 90 }
+
+    turtle {
+        penDown
+        penColor "red"
+        repeat [1..4] (side 100)
+    }
+
+    // Unrolled loop with function
+    let side d = turtle { forward d; turn 90 }
+
+    turtle {
+        penDown
+        penColor "red"
+        sub (side 100)
+        sub (side 100)
+        sub (side 100)
+        sub (side 100)
+    }
+
 ```
-
-Note the use of `lazy` on conditionals to prevent eager evaluation of drawings that will not be used.
 
 ## Motivation
 
 This component was inspired by Maxime Mangel's [Elmish.Canvas](https://github.com/MangelMaxime/Elmish.Canvas). I created this component as a learning exercise mainly. I wanted to see if I could derive the React component entirely in Fable, and I also wanted to see how the drawing syntax would look as a Computation Expression. This is my first attempt at a CE, and while it didn't turn out as neatly as I wanted, I'm pleased that it works. I like how the CE variant removes tuple-form arguments, for example.
 
 Inspiration for using `Custom Expressions` for computation expressions came from seeing how Isaac Abraham's [Farmer](https://github.com/CompositionalIT/farmer) implements its builders (such as `webApp`, `arm` etc).
-
-## Issues
-
-- The CE implementation is a lot of wrapper code around the DU, and I'm not sure how much value it adds. I didn't quite get the clean `for` and `if/then/else` constructs that I wanted, and from what I can tell, that's down to the use of `CustomExpression`. On the other hand, I'm very new to this, and I might be missing something. There's probably a good reason Maxime didn't go down this route.
-
-- I like that the CE and DU represent pure approaches to specifying the drawing, but I'm not 100% sure I'm following the React rules in executing the drawing. From what I can tell, you can do it during `componentDidMount` and `componentDidUpdate`, provided you have captured a reference to the DOM canvas using `Ref`.
-
-- Incomplete. See `API Coverage` below
-
-- Documentation. No docs yet
 
 ## API Coverage
 
@@ -259,6 +262,14 @@ Inspiration for using `Custom Expressions` for computation expressions came from
 Available from NuGet as `Fable.React.DrawingCanvas`.
 
 ## Revision History
+
+*1.1*
+- Basic turtle support
+- Builders return (unit -> Drawing) so we can drop need for `lazy`
+- Renamed `loop` to `repeat`
+- Renamed `insert` to `sub`
+- More unit tests
+- Focus more on usability of builders than plain lists, though still supported, they don't look as neat
 
 *1.0.1*
 - Module name "DrawingCanvas" -> "Fable.React.DrawingCanvas"
