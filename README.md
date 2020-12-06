@@ -2,7 +2,7 @@
 
 ## Demo Apps
 
-| <img src="./iamges/demo.png" width="64"> | [Real-time Analog Clock](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) |
+| <img src="./images/demo.png" width="64"> | [Real-time Analog Clock](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) |
 |-|-|
 | <img src="./images/fractal.png" width="64"> | __[Interactive Koch Snowflake](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal)__ |
 | <img src="./images/particles.png" width="64"> | __[20,000 Particles](https://davedawkins.github.io/Fable.React.DrawingCanvas/particles)__ |
@@ -56,7 +56,7 @@ The clock demo linked at the top of this page includes code to draw the clock in
 - `./app/ClockUsingBuilder.fs`
 - `./app/ClockUsingFunction.fs`
 
-<img src="./iamges/demo.png" width="400">
+<img src="./images/demo.png" width="400">
 
 ## Control Structures
 
@@ -109,7 +109,7 @@ The type `Drawing` is aliased to `DrawCommand list`.
 
 You can also build drawings using turtle graphics. The `Fractal` demo is now implemented purely in terms of `turtle { .. }`.
 
-<img src="./images/sierpinski.png" width='400">
+<img src="./images/sierpinski.png" width="400">
 
 The type of `turtle { }` is `unit ->Drawing`.
 
