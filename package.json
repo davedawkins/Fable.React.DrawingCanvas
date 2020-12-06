@@ -1,7 +1,7 @@
 {
   "name": "fable-react-drawingcanvas",
   "private": false,
-  "version": "1.0.1",
+  "version": "1.1.0",
   "repository": {
     "url": "https://github.com/davedawkins/Fable.React.DrawingCanvas.git"
   },
