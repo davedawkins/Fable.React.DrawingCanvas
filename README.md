@@ -109,11 +109,11 @@ The type `Drawing` is aliased to `DrawCommand list`.
 
 You can also build drawings using turtle graphics. The [Fractal](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal) demo is now implemented purely in terms of `turtle { .. }`.
 
-<img src="./images/sierpinski.png" width="400">
+<img src="./images/sierpinski.png" width="450">
 
-<img src="./images/kochsnowflake.png" width="200">
-<img src="./images/kochanti.png" width="200">
-<img src="./images/koch90.png" width="200">
+<img src="./images/kochsnowflake.png" width="150" style="display: inline-block;">
+<img src="./images/kochanti.png" width="150" style="display: inline-block;">
+<img src="./images/koch90.png" width="150" style="display: inline-block;">
 
 The type of `turtle { }` is `unit ->Drawing`.
 
