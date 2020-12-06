@@ -4,7 +4,7 @@
 
 | <img src="./images/demo.png" width="64"> | [Real-time Analog Clock](https://davedawkins.github.io/Fable.React.DrawingCanvas/clock) |
 |-|-|
-| <img src="./images/fractal.png" width="64"> | __[Interactive Koch Snowflake](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal)__ |
+| <img src="./images/fractal.png" width="64"> | __[Interactive Fractals](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal)__ |
 | <img src="./images/particles.png" width="64"> | __[20,000 Particles](https://davedawkins.github.io/Fable.React.DrawingCanvas/particles)__ |
 
 ## About
@@ -107,9 +107,13 @@ The type `Drawing` is aliased to `DrawCommand list`.
 
 ## Turtle Graphics
 
-You can also build drawings using turtle graphics. The `Fractal` demo is now implemented purely in terms of `turtle { .. }`.
+You can also build drawings using turtle graphics. The [Fractal](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal) demo is now implemented purely in terms of `turtle { .. }`.
 
 <img src="./images/sierpinski.png" width="400">
+
+<img src="./images/kochsnowflake.png" width="200">
+<img src="./images/kochanti.png" width="200">
+<img src="./images/koch90.png" width="200">
 
 The type of `turtle { }` is `unit ->Drawing`.
 
