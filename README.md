@@ -111,9 +111,9 @@ You can also build drawings using turtle graphics. The [Fractal](https://davedaw
 
 <img src="./images/sierpinski.png" width="450">
 
-<img src="./images/kochsnowflake.png" width="150" style="display: inline-block;">
-<img src="./images/kochanti.png" width="150" style="display: inline-block;">
-<img src="./images/koch90.png" width="150" style="display: inline-block;">
+| <img src="./images/kochsnowflake.png" width="150" style="display: inline-block;"> | <img src="./images/kochanti.png" width="150" style="display: inline-block;"> | <img src="./images/koch90.png" width="150" style="display: inline-block;"> |
+|----|-----|-----|
+|    |     |     |
 
 The type of `turtle { }` is `unit ->Drawing`.
 
