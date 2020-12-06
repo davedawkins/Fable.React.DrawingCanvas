@@ -1,5 +1,6 @@
 module ClockUsingList
 
+#if false
 open Util
 open System
 open Fable.React.DrawingCanvas
@@ -115,3 +116,4 @@ let clock (time : DateTime) =
         ] |> Insert
    ]
 
+#endif

@@ -52,7 +52,7 @@ let view model dispatch =
                   | Builder ->
                       ClockUsingBuilder.clock model.CurrentTime
                       |> Drawing
-                  | List -> ClockUsingList.clock model.CurrentTime |> Drawing }
+                  | List -> ClockUsingBuilder.clock model.CurrentTime |> Drawing }
     ]
 
 open Elmish.React

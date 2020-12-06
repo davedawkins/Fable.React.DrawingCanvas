@@ -19,8 +19,16 @@ let LineJoinBevel = "bevel"
 let LineJoinRound = "round"
 let LineJoinMiter = "miter"
 
-type  DrawCommand =
+type TurtleState = {
+    mutable IsPenDown : bool
+}
+
+//
+// Commands that match the Canvas2D almost one to one. There are a few helper aliases
+//
+type CanvasCommand =
     | Resize of w:float * h:float
+
     | Save
     | Restore
     | BeginPath
@@ -57,14 +65,35 @@ type  DrawCommand =
     | StrokeRect of x:float * y:float * w:float * h:float
     | FillText of text:string * x:float * y:float * maxw:float option
     | StrokeText of text:string * x:float * y:float * maxw:float option
-    | Insert of (DrawCommand list)
 
-let rec runCommand (ctx:CanvasRenderingContext2D) command =
+//
+// Commands generated from the turtle builder
+//
+type TurtleCommand =
+    | PenUp
+    | PenDown
+    | PenColor of string
+    | Forward of distance:float
+    | Turn of angle:float
+
+//
+// General draw command. These will need translating (compiling, kind of) into Canvas commands
+//
+type DrawCommand =
+    | Canvas of CanvasCommand
+    | Turtle of TurtleCommand
+    | Sub of (DrawCommand list)
+
+//
+// Side-effect time for canvas commands
+//
+let rec private runCommand (turtle : TurtleState) (ctx:CanvasRenderingContext2D) (command : CanvasCommand) =
     match command with
-    | Insert cmds ->
-        for cmd in cmds do
-            runCommand ctx cmd
+
+    // Helper for resizing
     | Resize (w,h) -> ctx.canvas.width <- w; ctx.canvas.height <- h
+
+    // Canvas2D API, with occasional helper like FillColor and StrokeColor
     | Save -> ctx.save()
     | Restore -> ctx.restore()
     | BeginPath -> ctx.beginPath()
@@ -80,11 +109,11 @@ let rec runCommand (ctx:CanvasRenderingContext2D) command =
     | ShadowOffsetY offset -> ctx.shadowOffsetY <- offset
     | MiterLimit n -> ctx.miterLimit <- n
     | SetLineDash segments -> ctx.setLineDash(segments)
-    | FillColor c -> ctx.fillStyle <- U3.Case1(c)
+    | FillColor c -> ctx.fillStyle <- U3.Case1(c) // Helper
     | FillStyle (Color s) -> ctx.fillStyle <- U3.Case1(s)
     | FillStyle (Gradient g) -> ctx.fillStyle <- U3.Case2(g)
     | FillStyle (Pattern p) ->  ctx.fillStyle <- U3.Case3(p)
-    | StrokeColor c -> ctx.strokeStyle <- U3.Case1(c)
+    | StrokeColor c -> ctx.strokeStyle <- U3.Case1(c) // Helper
     | StrokeStyle (Color s) -> ctx.strokeStyle <- U3.Case1(s)
     | StrokeStyle (Gradient g) -> ctx.strokeStyle <- U3.Case2(g)
     | StrokeStyle (Pattern p) -> ctx.strokeStyle <- U3.Case3(p)
@@ -112,9 +141,46 @@ let rec runCommand (ctx:CanvasRenderingContext2D) command =
         | None -> ctx.strokeText(text,x,y)
         | Some mw -> ctx.strokeText(text,x,y,mw)
 
-let runCommands ctx commands =
-    for cmd in commands do
-        runCommand ctx cmd
+//
+// Turn Turtle commands into CanvasCommands
+//
+let translateTurtle turtle cmd =
+    seq {
+        match cmd with
+
+        // State-dependent turtle commands
+        | PenUp ->
+            turtle.IsPenDown <- false
+        | PenDown ->
+            turtle.IsPenDown <- true
+            yield MoveTo (0.0,0.0)
+        | Forward n ->
+            yield if (turtle.IsPenDown) then LineTo(n,0.0) else MoveTo(n,0.0)
+            yield Translate(n,0.0)
+
+        // These could have been emitted directly in the builder, since they don't have
+        // a dependency on turtle state
+        | Turn a ->
+            yield Rotate( a * Math.PI / 180.0 )
+        | PenColor c ->
+            yield StrokeColor c
+    }
+
+//
+// Turn a list of DrawCommand into pure CanvasCommands
+//
+let rec translate turtle commands =
+    seq {
+        for cmd in commands do
+            match cmd with
+            | Canvas c -> yield c
+            | Sub cmds -> yield! (translate turtle cmds)
+            | Turtle t -> yield! (translateTurtle turtle t)
+    }
+
+let runCommands turtle ctx commands =
+    for cmd in commands |> translate turtle do
+        runCommand turtle ctx cmd
 
 type Drawing = DrawCommand list
 
@@ -145,12 +211,19 @@ type DrawingCanvas(initialProps) as self =
         | Some ce ->
             let ctx = ce.getContext_2d ()
             match self.props.Redraw with
-            | Drawing d ->  d |> (ctx |> runCommands)
+            | Drawing d ->
+                let turtle = { IsPenDown = false }
+                ctx.canvas.width <- ce.offsetWidth
+                ctx.canvas.height <- ce.offsetHeight
+                d |> (ctx |> runCommands turtle)
             | DrawFunction f -> f ctx
 
     override this.render() =
         canvas
-           [ Ref setRef ; yield! this.props.Props ]
+           [
+                Ref setRef
+                yield! this.props.Props
+           ]
            this.children
 
     override this.componentDidMount() = drawNow ()
@@ -170,8 +243,8 @@ module Builder =
         | StrokePath
 
     type DrawCommandBuilder( variant : BuilderVariant ) =
-        let append xs (x : DrawCommand) =
-            xs @ [ x ]
+        let append xs (x : CanvasCommand) =
+            xs @ [ Canvas x ]
 
         // With Delay/Run:
         //     Run( Delay ( fun () -> (Yield |> Resize |> Arc) ))
@@ -189,14 +262,12 @@ module Builder =
 
         // Unwraps the function created by Delay. This allows us to apply the variant wrapping, if needed
         member _.Run(funcToRun) =
-            console.log("Run")
             let result : DrawCommand list = funcToRun()
             match variant with
                 | Regular -> result
-                | SaveRestore -> (Save :: result) @ [ Restore ]
-                | FillPath -> (BeginPath :: result) @ [ Fill ]
-                | StrokePath -> (BeginPath :: result) @ [ Stroke ]
-
+                | SaveRestore -> (Canvas Save :: result) @ [ Canvas Restore ]
+                | FillPath -> (Canvas BeginPath :: result) @ [ Canvas Fill ]
+                | StrokePath -> (Canvas BeginPath :: result) @ [ Canvas Stroke ]
 
         [<CustomOperation "resize">]
         member _.Resize(state:Drawing, w, h) = append state <| Resize (w,h)
@@ -258,23 +329,11 @@ module Builder =
         [<CustomOperation "fillStyle">]
         member _.FillStyle(state:Drawing, (style:DrawStyle) ) = append state <| FillStyle style
 
-        //[<CustomOperation "fillStyle">]
-        //member _.FillStyle(state:Drawing, (gradient:CanvasGradient) ) = append state <| FillStyle (Gradient gradient)
-
-        //[<CustomOperation "fillStyle">]
-        //member _.FillStyle(state:Drawing, (pattern:CanvasPattern) ) = append state <| FillStyle (Pattern pattern)
-
         [<CustomOperation "strokeColor">]
         member _.StrokeColor(state:Drawing, (color:string) ) = append state <| StrokeStyle (Color color)
 
         [<CustomOperation "strokeStyle">]
         member _.StrokeStyle(state:Drawing, (style:DrawStyle) ) = append state <| StrokeStyle style
-
-        //[<CustomOperation "strokeStyle">]
-        //member _.StrokeStyle(state:Drawing, (gradient:CanvasGradient) ) = append state <| StrokeStyle (Gradient gradient)
-
-        //[<CustomOperation "strokeStyle">]
-        //member _.StrokeStyle(state:Drawing, (pattern:CanvasPattern) ) = append state <| StrokeStyle (Pattern pattern)
 
         [<CustomOperation "moveTo">]
         member _.MoveTo(state:Drawing, x, y ) = append state <| MoveTo (x,y)
@@ -347,20 +406,81 @@ module Builder =
 
 
 module ListHelpers =
-    let loop coll fn = coll |> List.collect fn |> Insert
+    let loop coll fn = coll |> List.collect fn |> Sub
 
     let ifThen cond (succ : Lazy<DrawCommand list>) =
-        Insert (if cond then succ.Value else [])
+        Sub (if cond then succ.Value else [])
 
     let ifThenElse cond (succ : Lazy<DrawCommand list>) (fail:Lazy<DrawCommand list>) =
-        Insert (if cond then succ.Value else fail.Value)
+        Sub (if cond then succ.Value else fail.Value)
 
     let preserve (drawing : DrawCommand list) =
-        (Save :: drawing) @ [ Restore ]
+        (Canvas Save :: drawing) @ [ Canvas Restore ]
 
     let fillpath (drawing : DrawCommand list) =
-        (BeginPath :: drawing) @ [ Fill ]
+        (Canvas BeginPath :: drawing) @ [ Canvas Fill ]
 
     let strokepath (drawing : DrawCommand list) =
-        (BeginPath :: drawing) @ [ Stroke ]
+        (Canvas BeginPath :: drawing) @ [ Canvas Stroke ]
 
+module Turtle =
+
+    open System
+
+    type TurtleBuilder() =
+        let append xs (x : TurtleCommand) =
+            xs @ [ Turtle x ]
+
+        let appendSub xs (x : DrawCommand list) =
+            xs @ [ x |> List.filter (fun c -> c <> Canvas BeginPath && c <> Canvas Stroke) |> Sub ]
+
+        // Defers execution of the CE until the Run().
+        member _.Delay(funcToDelay) =
+            let delayed = fun () -> funcToDelay()
+            delayed // return the new function. This will be unwrapped with Run, where we can apply variant
+
+        // Initialises the expression
+        member _.Yield _ : DrawCommand list =
+            []
+
+        // Unwraps the function created by Delay. This allows us to apply the variant wrapping, if needed
+        member _.Run( funcToRun ) : DrawCommand list =
+            //let result : TurtleCommand list = funcToRun()
+            let drawing = funcToRun()
+            (Canvas BeginPath :: drawing) @ [ Canvas Stroke ]
+
+        [<CustomOperation "forward">]
+        member _.Forward(state:Drawing, d) = append state <| Forward d
+
+        [<CustomOperation "turn">]
+        member _.Turn(state:Drawing, a) = append state <| Turn a
+
+        [<CustomOperation "penUp">]
+        member _.PenUp(state:Drawing) = append state <| PenUp
+
+        [<CustomOperation "penDown">]
+        member _.PenDown(state:Drawing) = append state <| PenDown
+
+        [<CustomOperation "penColor">]
+        member _.PenColor(state:Drawing, c) = append state <| PenColor c
+
+        [<CustomOperation "insert">]
+        member _.Insert(state:Drawing, drawing ) = appendSub state drawing
+
+        [<CustomOperation "loop">]
+        member _.Loop<'T>(state:Drawing, col:seq<'T>, f:('T -> Drawing) ) =
+            let mutable result = state
+            for x in col do
+                let d = f x
+                result <- appendSub result d
+            result
+
+        [<CustomOperation "ifThen">]
+        member _.IfThen(state:Drawing, cond, succ : Lazy<Drawing>) : Drawing =
+            if cond then appendSub state succ.Value else state
+
+        [<CustomOperation "ifThenElse">]
+        member _.IfThenElse(state:Drawing, cond, succ : Lazy<Drawing>, fail : Lazy<Drawing>) =
+            if cond then (appendSub state succ.Value) else (appendSub state fail.Value)
+
+    let turtle = TurtleBuilder()

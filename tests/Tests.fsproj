@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Util.fs" />
     <Compile Include="Test.DrawingCanvas.Builder.fs" />
-    <Compile Include="Test.DrawingCanvas.List.fs" />
+    <Compile Include="Test.DrawingCanvas.Turtle.fs" />
     <Compile Include="AllTests.fs" />
   </ItemGroup>
 

@@ -1,14 +1,9 @@
 ﻿module Test.DrawingCanvas.Builder
 
+open Util
 open Fable.Mocha
 open Fable.React.DrawingCanvas
 open Fable.React.DrawingCanvas.Builder
-
-let expectListEqual (expected:List<'T>) (value: List<'T>) =
-    Expect.areEqual expected.Length value.Length
-    for p in List.zip expected value do
-        Expect.areEqual (fst p) (snd p)
-
 
 let tests = testList "DrawingCanvas.Builder" [
 
@@ -28,7 +23,7 @@ let tests = testList "DrawingCanvas.Builder" [
             Restore
         ]
 
-        expectListEqual expected d
+        expectDrawingsEqual expected d
 
     testCase "Builder ifThen true" <| fun () ->
         let d = drawing {
@@ -44,7 +39,7 @@ let tests = testList "DrawingCanvas.Builder" [
             Restore
         ]
 
-        expectListEqual expected d
+        expectDrawingsEqual expected d
 
     testCase "Builder IfThen false" <| fun () ->
         let d = drawing {
@@ -58,7 +53,7 @@ let tests = testList "DrawingCanvas.Builder" [
             Restore
         ]
 
-        expectListEqual expected d
+        expectDrawingsEqual expected d
 
     testCase "Builder IfThenElse true" <| fun () ->
         let d = drawing {
@@ -74,7 +69,7 @@ let tests = testList "DrawingCanvas.Builder" [
             Restore
         ]
 
-        expectListEqual expected d
+        expectDrawingsEqual expected d
 
     testCase "Builder IfThenElse false" <| fun () ->
         let d = drawing {
@@ -90,7 +85,7 @@ let tests = testList "DrawingCanvas.Builder" [
             Restore
         ]
 
-        expectListEqual expected d
+        expectDrawingsEqual expected d
 
     testCase "Builder preserve" <| fun () ->
 
@@ -108,7 +103,7 @@ let tests = testList "DrawingCanvas.Builder" [
             Restore
         ]
 
-        expectListEqual expected d
+        expectDrawingsEqual expected d
 
     testCase "Builder strokepath" <| fun () ->
 
@@ -122,7 +117,7 @@ let tests = testList "DrawingCanvas.Builder" [
             Stroke
         ]
 
-        expectListEqual expected d
+        expectDrawingsEqual expected d
 
     testCase "Builder fillPath" <| fun () ->
 
@@ -136,7 +131,6 @@ let tests = testList "DrawingCanvas.Builder" [
             Fill
         ]
 
-        expectListEqual expected d
-
+        expectDrawingsEqual expected d
 
 ]

@@ -4,7 +4,7 @@ open Elmish
 open Fable.React
 open Fable.React.Props
 open Fable.React.DrawingCanvas
-open Fable.React.DrawingCanvas.Builder
+open Fable.React.DrawingCanvas.Turtle
 open Fable.Core
 open Fulma
 
@@ -19,48 +19,40 @@ let update msg model =
     | SetDetail n -> { model with Detail = max (min n 6) 0 }, Cmd.none
 
 let drawFractal detail =
-    let deg n = System.Math.PI * n / 180.0
-
     let rec fractalLine len d =
-        drawing {
+        turtle {
             ifThenElse
                 (d = 0)
-                (lazy
-                    (drawing {
-                        lineTo len 0.0
-                        translate len 0.0
+                (lazy (turtle {
+                        forward len
                      }))
                 (lazy
                     (let s = fractalLine (len / 3.0) (d - 1)
-                     drawing {
+                     turtle {
                          insert s
-                         rotate (deg -60.0)
+                         turn -60.0
                          insert s
-                         rotate (deg 120.0)
+                         turn 120.0
                          insert s
-                         rotate (deg -60.0)
+                         turn -60.0
                          insert s
                      }))
         }
 
-    drawing {
-        resize 400.0 400.0
-        fillRect 0.0 0.0 400.0 400.0
-        translate 200.0 25.0
-        scale 1.0 1.0
-        strokeColor "white"
-        fillColor "black"
-
-        insert
-            (strokepath {
-                moveTo 0.0 0.0
-                rotate (deg 60.0)
-                insert (fractalLine 300.0 detail)
-                rotate (deg 120.0)
-                insert (fractalLine 300.0 detail)
-                rotate (deg 120.0)
-                insert (fractalLine 300.0 detail)
-             })
+    turtle {
+        penUp
+        forward 200.0
+        turn 90.0
+        forward 25.0
+        turn -90.0
+        penColor "white"
+        penDown
+        turn 60.0
+        insert (fractalLine 300.0 detail)
+        turn 120.0
+        insert (fractalLine 300.0 detail)
+        turn 120.0
+        insert (fractalLine 300.0 detail)
     }
 
 let view model dispatch =
@@ -70,7 +62,7 @@ let view model dispatch =
                   MarginTop "48px" ] ] [
         Heading.h5 [] [ str "Koch Snowflake" ]
         drawingcanvas
-            { Props = []
+            { Props = [ Style [ Background "black"; Width 400; Height 400 ] ]
               Redraw = Drawing(drawFractal model.Detail) }
         Label.label [] [ str "Detail:" ]
         Field.div [ Field.HasAddonsRight ] [
