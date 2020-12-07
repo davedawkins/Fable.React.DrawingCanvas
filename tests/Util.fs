@@ -10,5 +10,5 @@ let expectListEqual (expected:List<'T>) (value: List<'T>) =
         Expect.areEqual (fst p) (snd p)
 
 let expectDrawingsEqual (expected:CanvasCommand list) (value:unit -> DrawCommand list) =
-    let turtle = { IsPenDown = false }
+    let turtle = { IsPenDown = false; LineCount = 0 }
     expectListEqual expected (value() |> translate turtle |> Seq.toList)

@@ -1,7 +1,7 @@
 {
   "name": "fable-react-drawingcanvas",
   "private": false,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "repository": {
     "url": "https://github.com/davedawkins/Fable.React.DrawingCanvas.git"
   },
@@ -13,6 +13,8 @@
     "build:fractal": "webpacK --config webpack.fractal.config.js",
     "start:particles": "webpack-dev-server --config webpack.particles.config.js",
     "build:particles": "webpacK --config webpack.particles.config.js",
+    "start:turtle": "webpack-dev-server --config webpack.turtle.config.js",
+    "build:turtle": "webpacK --config webpack.turtle.config.js",
     "publish": "node publish.js",
     "pretest": "fable-splitter tests -o dist/tests --commonjs",
     "test": "mocha dist/tests"  },

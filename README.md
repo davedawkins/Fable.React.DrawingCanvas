@@ -6,6 +6,7 @@
 |-|-|
 | <img src="./images/fractal.png" width="64"> | __[Interactive Fractals](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal)__ |
 | <img src="./images/particles.png" width="64"> | __[20,000 Particles](https://davedawkins.github.io/Fable.React.DrawingCanvas/particles)__ |
+| <img src="./images/turtle.png" width="64"> | __[Turtle Graphics](https://davedawkins.github.io/Fable.React.DrawingCanvas/turtle)__ |
 
 ## About
 
@@ -123,6 +124,12 @@ Supported commands are
 | `penDown`           | Set pen down |
 | `penUp`             | Set pen up   |
 | `penColor c`        | Set pen colour |
+| `rotateHue n`       | Rotate pen's hue by n |
+| `increaseWidth n`   | Increase pen's width by n |
+| `increaseAlpha n`   | Increase pen's alpha (transparency) by n |
+| `increaseRed n`     | Increase pen's red by n (where 0 <= red <= 1)
+| `increaseGreen n`   | Increase pen's green by n (where 0 <= green <= 1)
+| `increaseBlue n`    | Increase pen's blue by n (where 0 <= blue <= 1)
 | `forward n`         | Move forward distance n. A line will be drawn if the pen is down |
 | `turn a`            | Turn by a degrees |
 | `ifThen d`          | Conditional sub turtle drawing |
@@ -131,6 +138,8 @@ Supported commands are
 | `sub` d             | Include the sub-drawing d at this point. This is how you include drawings from functions
 
 More commands are on their way.
+
+Some of these commands are ported from the Elm library [turtle-graphics](https://github.com/mrdimosthenis/turtle-graphics), which is where the turtle demo comes from (see (SquareSpiral.elm)[https://raw.githubusercontent.com/mrdimosthenis/turtle-graphics/master/examples/SquareSpiral.elm] and (SquareSpiral.png)[https://raw.githubusercontent.com/mrdimosthenis/turtle-graphics/master/examples/SquareSpiral.png])
 
 Examples that draw squares:
 ```fsharp

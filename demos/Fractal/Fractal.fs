@@ -182,9 +182,7 @@ let view model dispatch =
 open Elmish.React
 open Elmish.HMR
 
-#if DEBUG
 // App
 Program.mkProgram init update view
 |> Program.withReactSynchronous "elmish-app"
 |> Program.run
-#endif

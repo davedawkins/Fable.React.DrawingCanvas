@@ -32,9 +32,9 @@ let tests = testList "DrawingCanvas.Turtle" [
         }
 
         let expected = [
+            Rotate (System.Math.PI)
             BeginPath
             MoveTo (0.0,0.0)
-            Rotate (System.Math.PI)
             LineTo (1.0,0.0)
             Translate (1.0,0.0)
             Stroke
@@ -51,10 +51,10 @@ let tests = testList "DrawingCanvas.Turtle" [
         }
 
         let expected = [
-            BeginPath
-            MoveTo (0.0,0.0)
             Rotate (System.Math.PI)
             Rotate (System.Math.PI * 2.0)
+            BeginPath
+            MoveTo (0.0,0.0)
             LineTo (1.0,0.0)
             Translate (1.0,0.0)
             Stroke
@@ -73,10 +73,10 @@ let tests = testList "DrawingCanvas.Turtle" [
         }
 
         let expected = [
-            BeginPath
-            MoveTo (0.0,0.0)
             Rotate (System.Math.PI)
             Rotate (System.Math.PI * 2.0)
+            BeginPath
+            MoveTo (0.0,0.0)
             LineTo (1.0,0.0)
             Translate (1.0,0.0)
             Stroke
@@ -91,10 +91,7 @@ let tests = testList "DrawingCanvas.Turtle" [
         }
 
         let expected = [
-            BeginPath
-            MoveTo (0.,0.)
             Rotate (System.Math.PI)
-            Stroke
         ]
 
         expectDrawingsEqual expected d
@@ -111,10 +108,7 @@ let tests = testList "DrawingCanvas.Turtle" [
         }
 
         let expected = [
-            BeginPath
-            MoveTo (0.,0.)
             Rotate (System.Math.PI)
-            Stroke
         ]
 
         expectDrawingsEqual expected d
@@ -131,11 +125,10 @@ let tests = testList "DrawingCanvas.Turtle" [
 
         let expected = [
             BeginPath
+            MoveTo (0.,0.)
 
             MoveTo (1.,0.)
             Translate (1.,0.)
-
-            MoveTo (0.,0.)
 
             LineTo (2.,0.)
             Translate (2.,0.)
@@ -164,11 +157,10 @@ let tests = testList "DrawingCanvas.Turtle" [
 
         let expected = [
             BeginPath
+            MoveTo (0.,0.)
 
             MoveTo (1.,0.)
             Translate (1.,0.)
-
-            MoveTo (0.,0.)
 
             LineTo (2.,0.)
             Translate (2.,0.)
@@ -179,6 +171,10 @@ let tests = testList "DrawingCanvas.Turtle" [
             Stroke
         ]
 
+        let turtle = { IsPenDown = false; LineCount = 0 }
+
+        for cmd in (d() |> translate turtle |> Seq.toList) do
+            System.Console.WriteLine("{0}", cmd)
         expectDrawingsEqual expected d
 
 ]

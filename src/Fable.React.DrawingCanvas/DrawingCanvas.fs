@@ -1,5 +1,6 @@
 module Fable.React.DrawingCanvas
 
+open System
 open Fable.Core
 open Fable.React
 open Fable.React.Props
@@ -21,6 +22,7 @@ let LineJoinMiter = "miter"
 
 type TurtleState = {
     mutable IsPenDown : bool
+    mutable LineCount : int
 }
 
 //
@@ -28,6 +30,14 @@ type TurtleState = {
 //
 type CanvasCommand =
     | Resize of w:float * h:float
+
+    | RotateFillHue of x:float
+    | RotateStrokeHue of x:float
+    | IncreaseLineWidth of x:float
+    | IncreaseStrokeRed of x:float
+    | IncreaseStrokeGreen of x:float
+    | IncreaseStrokeBlue of x:float
+    | IncreaseGlobalAlpha of x:float
 
     | Save
     | Restore
@@ -48,6 +58,7 @@ type CanvasCommand =
     | SetLineDash of float array
     | FillColor of string
     | StrokeColor of string
+    | GlobalAlpha of float
     | FillStyle of DrawStyle
     | StrokeStyle of DrawStyle
     | MoveTo of x:float * y:float
@@ -73,6 +84,12 @@ type TurtleCommand =
     | PenUp
     | PenDown
     | PenColor of string
+    | RotateHue of float
+    | IncreaseWidth of float
+    | IncreaseAlpha of float
+    | IncreaseRed of float
+    | IncreaseGreen of float
+    | IncreaseBlue of float
     | Forward of distance:float
     | Turn of angle:float
 
@@ -84,6 +101,128 @@ type DrawCommand =
     | Turtle of TurtleCommand
     | Sub of (DrawCommand list)
 
+module ColorShift =
+    let rotate (x:float) =
+        match x with
+        | x when x > 1. -> x - 1.
+        | x when x < 0. -> x + 1.
+        | _ -> x
+
+    let bound (x:float) =
+        match x with
+            | x when x > 1.0 -> 1.0
+            | x when x < 0. -> 0.
+            | _ -> x
+
+    let bound255 (x:float) =
+        match x with
+            | x when x > 255.0 -> 255.0
+            | x when x < 0. -> 0.
+            | _ -> x
+
+    let fromHexDigit c =
+        if c >= '0' && c <= '9' then int c - int '0'
+        elif c >= 'A' && c <= 'F' then (int c - int 'A') + 10
+        elif c >= 'a' && c <= 'f' then (int c - int 'a') + 10
+        else invalidOp "Not a hex character"
+
+    let fromHexByteString (ff:string) = fromHexDigit(ff.[0]) * 16 + fromHexDigit(ff.[1])
+
+    let hexToRgb (text:string) =
+        match text with
+            | text when text.Length = 7 && text.[0] = '#'
+                -> (
+                    text.[ 1..2 ] |> fromHexByteString |> float,
+                    text.[ 3..4 ] |> fromHexByteString |> float,
+                    text.[ 5..6 ] |> fromHexByteString |> float
+                )
+            | _ -> invalidOp "Expected RGB hex format '#RRGGBB'"
+
+    let rgbToHsv (r : float,g: float,b:float) =
+        let mx = System.Math.Max(r, System.Math.Max(g, b))
+        let mn = System.Math.Min(r, System.Math.Min(g, b))
+        let d = mx - mn
+        let s = if mx = 0. then 0. else (d / mx)
+        let v = mx / 255.
+        let h =
+            match mx with
+                | x when (x = mn) -> 0.0
+                | x when (x = r) ->
+                    ((g-b) + d * (if g<b then 6.0 else 0.)) / (6.0 * d)
+                | x when (x = g) ->
+                    ((b-r) + d * 2.0) / (6.0 * d)
+                | x when (x = b) ->
+                    ((r-g) + d * 4.0) / (6.0 * d)
+                | _ -> invalidOp "not possible"
+        (h,s,v)
+
+    let rotateHue x (h,s,v) =
+        ((h+x) |> rotate, s, v)
+
+    let increaseRed x (r,g,b) =
+        ((r + x*255.0 |> bound255), g, b)
+
+    let increaseGreen x (r,g,b) =
+        (r, (g + x*255.0 |> bound255), b)
+
+    let increaseBlue x (r,g,b) =
+        (r, g, (b + x*255.0 |> bound255))
+
+    let rgbToHex (r,g,b) = sprintf "#%02X%02X%02X" (int r) (int g) (int b)
+
+    let hsvToRgb (h:float,s:float,v:float) =
+        let i = Math.floor (h * 6.0)
+        let f = h * 6. - i
+        let p = v * (1. - s)
+        let q = v * (1. - f * s)
+        let t = v * (1. - (1. - f) * s)
+        let (r,g,b) =
+            match ((int i) % 6) with
+                | 0 -> (v, t, p)
+                | 1 -> (q, v, p)
+                | 2 -> (p, v, t)
+                | 3 -> (p, q, v)
+                | 4 -> (t, p, v)
+                | 5 -> (v, p, q)
+                | _ -> invalidOp "Stop compiler warning for incomplete matches"
+        (
+            Math.round(r * 255.0),
+            Math.round(g * 255.0),
+            Math.round(b * 255.0)
+        )
+
+    // hex is #RRGGBB
+    let hsvToHex = hsvToRgb >> rgbToHex
+    let hexToHsv = hexToRgb >> rgbToHsv
+
+let rotateHueFromStyle style amount =
+    let rgbHex =
+        match style with
+            | U3.Case1 c -> c
+            | _ -> "#000000"
+    U3.Case1 (rgbHex |> ColorShift.hexToHsv |> ColorShift.rotateHue amount |> ColorShift.hsvToHex)
+
+let increaseRedFromStyle style amount =
+    let rgbHex =
+        match style with
+            | U3.Case1 c -> c
+            | _ -> "#000000"
+    U3.Case1 (rgbHex |> ColorShift.hexToRgb |> ColorShift.increaseRed amount |> ColorShift.rgbToHex)
+
+let increaseGreenFromStyle style amount =
+    let rgbHex =
+        match style with
+            | U3.Case1 c -> c
+            | _ -> "#000000"
+    U3.Case1 (rgbHex |> ColorShift.hexToRgb |> ColorShift.increaseGreen amount |> ColorShift.rgbToHex)
+
+let increaseBlueFromStyle style amount =
+    let rgbHex =
+        match style with
+            | U3.Case1 c -> c
+            | _ -> "#000000"
+    U3.Case1 (rgbHex |> ColorShift.hexToRgb |> ColorShift.increaseBlue amount |> ColorShift.rgbToHex)
+
 //
 // Side-effect time for canvas commands
 //
@@ -92,6 +231,27 @@ let rec private runCommand (turtle : TurtleState) (ctx:CanvasRenderingContext2D)
 
     // Helper for resizing
     | Resize (w,h) -> ctx.canvas.width <- w; ctx.canvas.height <- h
+
+    | RotateStrokeHue x ->
+        ctx.strokeStyle <- rotateHueFromStyle ctx.strokeStyle x
+
+    | RotateFillHue x ->
+        ctx.fillStyle <- rotateHueFromStyle ctx.fillStyle x
+
+    | IncreaseLineWidth x ->
+        ctx.lineWidth <- ctx.lineWidth + x
+
+    | IncreaseGlobalAlpha x ->
+        ctx.globalAlpha <- System.Math.Max(0., System.Math.Min(ctx.globalAlpha+x, 1.0))
+
+    | IncreaseStrokeRed x ->
+        ctx.strokeStyle <- increaseRedFromStyle ctx.strokeStyle x
+
+    | IncreaseStrokeGreen x ->
+        ctx.strokeStyle <- increaseGreenFromStyle ctx.strokeStyle x
+
+    | IncreaseStrokeBlue x ->
+        ctx.strokeStyle <- increaseBlueFromStyle ctx.strokeStyle x
 
     // Canvas2D API, with occasional helper like FillColor and StrokeColor
     | Save -> ctx.save()
@@ -114,6 +274,7 @@ let rec private runCommand (turtle : TurtleState) (ctx:CanvasRenderingContext2D)
     | FillStyle (Gradient g) -> ctx.fillStyle <- U3.Case2(g)
     | FillStyle (Pattern p) ->  ctx.fillStyle <- U3.Case3(p)
     | StrokeColor c -> ctx.strokeStyle <- U3.Case1(c) // Helper
+    | GlobalAlpha a -> ctx.globalAlpha <- System.Math.Max(0., System.Math.Min(a, 1.0))
     | StrokeStyle (Color s) -> ctx.strokeStyle <- U3.Case1(s)
     | StrokeStyle (Gradient g) -> ctx.strokeStyle <- U3.Case2(g)
     | StrokeStyle (Pattern p) -> ctx.strokeStyle <- U3.Case3(p)
@@ -151,31 +312,82 @@ let translateTurtle turtle cmd =
         // State-dependent turtle commands
         | PenUp ->
             turtle.IsPenDown <- false
+
         | PenDown ->
             turtle.IsPenDown <- true
-            yield MoveTo (0.0,0.0)
+
         | Forward n ->
+            if (turtle.LineCount = 0) then
+                yield BeginPath
+                yield MoveTo (0.0, 0.0)
+
             yield if (turtle.IsPenDown) then LineTo(n,0.0) else MoveTo(n,0.0)
             yield Translate(n,0.0)
+
+            turtle.LineCount <- turtle.LineCount + 1
 
         // These could have been emitted directly in the builder, since they don't have
         // a dependency on turtle state
         | Turn a ->
             yield Rotate( a * Math.PI / 180.0 )
         | PenColor c ->
+            if (turtle.LineCount > 0) then
+                yield Stroke
+                turtle.LineCount <- 0
             yield StrokeColor c
+        | RotateHue x ->
+            if (turtle.LineCount > 0) then
+                yield Stroke
+                turtle.LineCount <- 0
+            yield RotateStrokeHue x
+        | IncreaseWidth x ->
+            if (turtle.LineCount > 0) then
+                yield Stroke
+                turtle.LineCount <- 0
+            yield IncreaseLineWidth x
+
+        | IncreaseAlpha x ->
+            if (turtle.LineCount > 0) then
+                yield Stroke
+                turtle.LineCount <- 0
+            yield IncreaseGlobalAlpha x
+
+        | IncreaseRed x ->
+            if (turtle.LineCount > 0) then
+                yield Stroke
+                turtle.LineCount <- 0
+            yield IncreaseStrokeRed x
+
+        | IncreaseGreen x ->
+            if (turtle.LineCount > 0) then
+                yield Stroke
+                turtle.LineCount <- 0
+            yield IncreaseStrokeGreen x
+
+        | IncreaseBlue x ->
+            if (turtle.LineCount > 0) then
+                yield Stroke
+                turtle.LineCount <- 0
+            yield IncreaseStrokeBlue x
+
     }
 
 //
 // Turn a list of DrawCommand into pure CanvasCommands
 //
-let rec translate turtle commands =
+let  translate turtle commands =
+    let rec tr turtle commands =
+        seq {
+            for cmd in commands do
+                match cmd with
+                | Canvas c -> yield c
+                | Sub cmds -> yield! (tr turtle cmds)
+                | Turtle t -> yield! (translateTurtle turtle t)
+        }
     seq {
-        for cmd in commands do
-            match cmd with
-            | Canvas c -> yield c
-            | Sub cmds -> yield! (translate turtle cmds)
-            | Turtle t -> yield! (translateTurtle turtle t)
+        yield! tr turtle commands
+        if (turtle.LineCount > 0) then
+            yield Stroke
     }
 
 let runCommands turtle ctx commands =
@@ -212,7 +424,7 @@ type DrawingCanvas(initialProps) as self =
             let ctx = ce.getContext_2d ()
             match self.props.Redraw with
             | Drawing d ->
-                let turtle = { IsPenDown = false }
+                let turtle = { IsPenDown = false; LineCount = 0 }
                 ctx.canvas.width <- ce.offsetWidth
                 ctx.canvas.height <- ce.offsetHeight
                 d() |> (ctx |> runCommands turtle)
@@ -272,6 +484,27 @@ module Builder =
 
         [<CustomOperation "resize">]
         member _.Resize(state:Drawing, w, h) = append state <| Resize (w,h)
+
+        [<CustomOperation "rotateStrokeHue">]
+        member _.RotateStrokeHue(state:Drawing, x) = append state <| RotateStrokeHue x
+
+        [<CustomOperation "rotateFillHue">]
+        member _.RotateFillHue(state:Drawing, x) = append state <| RotateFillHue x
+
+        [<CustomOperation "increaseLineWidth">]
+        member _.IncreaseLineWidth(state:Drawing, x) = append state <| IncreaseLineWidth x
+
+        [<CustomOperation "increaseStrokeRed">]
+        member _.IncreaseStrokeRed(state:Drawing, x) = append state <| IncreaseStrokeRed x
+
+        [<CustomOperation "increaseStrokeBlue">]
+        member _.IncreaseStrokeBlue(state:Drawing, x) = append state <| IncreaseStrokeBlue x
+
+        [<CustomOperation "increaseStrokeGreen">]
+        member _.IncreaseStrokeGreen(state:Drawing, x) = append state <| IncreaseStrokeGreen x
+
+        [<CustomOperation "globalAlpha">]
+        member _.GlobalAlpha(state:Drawing, x) = append state <| GlobalAlpha x
 
         [<CustomOperation "save">]
         member _.Save(state:Drawing ) = append state Save
@@ -433,7 +666,8 @@ module Turtle =
             xs @ [ Turtle x ]
 
         let appendSub xs (x : DrawCommand list) =
-            xs @ [ x |> List.filter (fun c -> c <> Canvas BeginPath && c <> Canvas Stroke) |> Sub ]
+            //xs @ [ x |> List.filter (fun c -> c <> Canvas BeginPath && c <> Canvas Stroke) |> Sub ]
+            xs @ [ Sub x ] // Could we just append x here?
 
         // Defers execution of the CE until the Run().
         member _.Delay(funcToDelay) =
@@ -448,7 +682,8 @@ module Turtle =
         member _.Run( funcToRun ) : (unit -> DrawCommand list) =
             fun () ->
                let drawing = funcToRun()
-               (Canvas BeginPath :: drawing) @ [ Canvas Stroke ]
+               //(Canvas BeginPath :: drawing) @ [ Canvas Stroke ]
+               drawing
 
         [<CustomOperation "forward">]
         member _.Forward(state:Drawing, d) = append state <| Forward d
@@ -464,6 +699,24 @@ module Turtle =
 
         [<CustomOperation "penColor">]
         member _.PenColor(state:Drawing, c) = append state <| PenColor c
+
+        [<CustomOperation "rotateHue">]
+        member _.RotateHue(state:Drawing, x) = append state <| RotateHue x
+
+        [<CustomOperation "increaseWidth">]
+        member _.IncreaseWidth(state:Drawing, x) = append state <| IncreaseWidth x
+
+        [<CustomOperation "increaseAlpha">]
+        member _.IncreaseAlpha(state:Drawing, x) = append state <| IncreaseAlpha x
+
+        [<CustomOperation "increaseRed">]
+        member _.IncreaseRed(state:Drawing, x) = append state <| IncreaseRed x
+
+        [<CustomOperation "increaseGreen">]
+        member _.IncreaseGreen(state:Drawing, x) = append state <| IncreaseGreen x
+
+        [<CustomOperation "increaseBlue">]
+        member _.IncreaseBlue(state:Drawing, x) = append state <| IncreaseBlue x
 
         [<CustomOperation "sub">]
         member _.Sub(state:Drawing, drawing : unit -> Drawing ) = appendSub state <| drawing()
