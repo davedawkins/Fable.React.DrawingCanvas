@@ -207,7 +207,7 @@ Inspiration for using `Custom Expressions` for computation expressions came from
 | ✓ | fillStyle |
 |   | filter |
 | ✓ | font |
-|   | globalAlpha |
+| ✓ | globalAlpha |
 |   | globalCompositeOperation |
 |   | imageSmoothingEnabled |
 |   | imageSmoothingQuality |
