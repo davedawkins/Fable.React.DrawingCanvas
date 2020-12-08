@@ -275,6 +275,9 @@ Available from NuGet as `Fable.React.DrawingCanvas`.
 
 ## Revision History
 
+*1.2*
+- More turtle support to implement spiral demo
+
 *1.1*
 - Basic turtle support
 - Builders return (unit -> Drawing) so we can drop need for `lazy`
