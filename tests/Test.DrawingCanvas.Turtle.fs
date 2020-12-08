@@ -171,10 +171,10 @@ let tests = testList "DrawingCanvas.Turtle" [
             Stroke
         ]
 
-        let turtle = { IsPenDown = false; LineCount = 0 }
+        //let turtle = { IsPenDown = false; LineCount = 0 }
+        //for cmd in (d() |> translate turtle |> Seq.toList) do
+        //    System.Console.WriteLine("{0}", cmd)
 
-        for cmd in (d() |> translate turtle |> Seq.toList) do
-            System.Console.WriteLine("{0}", cmd)
         expectDrawingsEqual expected d
 
 ]

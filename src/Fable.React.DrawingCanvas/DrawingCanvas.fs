@@ -306,10 +306,16 @@ let rec private runCommand (turtle : TurtleState) (ctx:CanvasRenderingContext2D)
 // Turn Turtle commands into CanvasCommands
 //
 let translateTurtle turtle cmd =
+    let strokePathFirst cmd =
+        seq {
+            if (turtle.LineCount > 0) then
+                yield Stroke
+                turtle.LineCount <- 0
+            yield cmd
+        }
+
     seq {
         match cmd with
-
-        // State-dependent turtle commands
         | PenUp ->
             turtle.IsPenDown <- false
 
@@ -326,49 +332,29 @@ let translateTurtle turtle cmd =
 
             turtle.LineCount <- turtle.LineCount + 1
 
-        // These could have been emitted directly in the builder, since they don't have
-        // a dependency on turtle state
         | Turn a ->
             yield Rotate( a * Math.PI / 180.0 )
+
         | PenColor c ->
-            if (turtle.LineCount > 0) then
-                yield Stroke
-                turtle.LineCount <- 0
-            yield StrokeColor c
+            yield! StrokeColor c |> strokePathFirst
+
         | RotateHue x ->
-            if (turtle.LineCount > 0) then
-                yield Stroke
-                turtle.LineCount <- 0
-            yield RotateStrokeHue x
+            yield! RotateStrokeHue x |> strokePathFirst
+
         | IncreaseWidth x ->
-            if (turtle.LineCount > 0) then
-                yield Stroke
-                turtle.LineCount <- 0
-            yield IncreaseLineWidth x
+            yield! IncreaseLineWidth x |> strokePathFirst
 
         | IncreaseAlpha x ->
-            if (turtle.LineCount > 0) then
-                yield Stroke
-                turtle.LineCount <- 0
-            yield IncreaseGlobalAlpha x
+            yield! IncreaseGlobalAlpha x |> strokePathFirst
 
         | IncreaseRed x ->
-            if (turtle.LineCount > 0) then
-                yield Stroke
-                turtle.LineCount <- 0
-            yield IncreaseStrokeRed x
+            yield! IncreaseStrokeRed x |> strokePathFirst
 
         | IncreaseGreen x ->
-            if (turtle.LineCount > 0) then
-                yield Stroke
-                turtle.LineCount <- 0
-            yield IncreaseStrokeGreen x
+            yield! IncreaseStrokeGreen x |> strokePathFirst
 
         | IncreaseBlue x ->
-            if (turtle.LineCount > 0) then
-                yield Stroke
-                turtle.LineCount <- 0
-            yield IncreaseStrokeBlue x
+            yield! IncreaseStrokeBlue x |> strokePathFirst
 
     }
 

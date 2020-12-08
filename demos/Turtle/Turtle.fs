@@ -21,54 +21,21 @@ let init () = { Color = "#00FF00" }, Cmd.none
 let update msg model =
     match msg with
     | SetColor c -> { model with Color = c }, Cmd.none
-(*
-
-https://github.com/mrdimosthenis/turtle-graphics/blob/master/examples/SquareSpiral.elm
-https://github.com/mrdimosthenis/turtle-graphics
 
 
-iter : Int -> Float -> List Command
-iter n dist =
-    case n of
-        0 ->
-            []
+// See original version of this demo for Elm here:
+// https://github.com/mrdimosthenis/turtle-graphics/blob/master/examples/SquareSpiral.elm
 
-        _ ->
-            iter (n - 1) (dist + 2.5)
-                |> List.append
-                    [ turn 89.5
-                    , move dist
-                    , rotateHue 0.002
-                    , increaseAlpha -0.005
-                    , increaseWidth 0.02
-                    ]
-
-
-main : Html.Html msg
-main =
-    iter 200 1.0
-        |> branch
-        |> List.singleton
-        |> List.append
-            [ increaseRed -1
-            , increaseGreen 1
-            , increaseBlue -1
-            ]
-        |> branch
-        |> render Color.darkCharcoal
-
-*)
-
-let rec iter n dist = turtle {
-    ifThen (n > 0) (turtle {
+let rec iter n dist =
+    turtle {
         turn 89.5
         forward dist
         rotateHue 0.002
         increaseWidth 0.02
         increaseAlpha -0.005
-        sub (iter (n-1)(dist + 2.5))
-    })
-}
+        ifThen (n > 0)
+            (iter (n-1) (dist + 2.5))
+    }
 
 let drawTurtle color =
     turtle {
