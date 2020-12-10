@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Select.fs" />
+    <Compile Include="TurtleParser.fs" />
     <Compile Include="Turtle.fs" />
   </ItemGroup>
   <ItemGroup>
