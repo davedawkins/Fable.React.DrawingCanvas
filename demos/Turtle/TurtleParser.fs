@@ -109,7 +109,7 @@ let parseKeyword keyword=
     let inner (input:string) =
         let input' = skipWhite input
         if input'.StartsWith(keyword) then
-            console.log(sprintf "keyword '%s', '%s'" keyword input'.[keyword.Length..])
+            //console.log(sprintf "keyword '%s', '%s'" keyword input'.[keyword.Length..])
             Success( keyword, input'.[keyword.Length..])
         else
             Error (sprintf "Keyword not found: %s" keyword)
@@ -123,7 +123,7 @@ let parseChar predicate name =
         if (input.Length = 0) || not(predicate(input.[0])) then
             Error (sprintf "Not a %s" name)
         else
-            console.log(sprintf "char '%c', '%s'" input.[0] input.[1..])
+            //console.log(sprintf "char '%c', '%s'" input.[0] input.[1..])
             Success(input.[0],input.[1..])
     Parser inner
 
@@ -191,7 +191,7 @@ let parseNumber =
                     | Some (_,digits) -> List.foldBack d10 digits 0.0
 
                 let n = ((digits |> List.fold m10 0.0) + mant) * (if neg.IsSome then -1.0 else 1.0)
-                console.log(sprintf "Number %f, '%s'" n remainder)
+                //console.log(sprintf "Number %f, '%s'" n remainder)
                 Success( n, remainder)
     Parser inner
 
@@ -224,12 +224,13 @@ let parseIdRef = parseIdent |> map Id
 
 let rec parseBinOp =
     let inner keyw op input =
+        // this should be parseExpr .>>. parseKeyword .>>. parseExpr
         let p = (parseNum <|> parseIdRef) .>>. parseKeyword keyw .>>. (parseNum <|> parseIdRef)
         let r = run p (skipWhite input)
         match r with
             | Error msg -> Error msg
             | Success (((a,k),b), remainder) ->
-                console.log(sprintf "binOp %s: %A %A" k a b)
+                //console.log(sprintf "binOp %s: %A %A" k a b)
                 Success(BinOp (op,a,b), remainder)
     let binOps = [
         Parser (inner "=" Eq)
@@ -349,9 +350,13 @@ let rec eval context (expr : Expr) : float =
     | Num n -> n
     | Id id -> context.Vars.[id]
 
+// Build a Drawing from a parse tree, evaluating Exprs
 let evalProgram program =
     let context = { Vars = Dictionary<string,float>() }
-//    context.Vars.["t"] <-
+    //
+    //    context.Vars.["t"] <- Environment.Ticks / 1000000  // ? ms ?
+    // Let's feed the current time in here
+    //
     let rec evalCmds cmds =
         cmds |> List.fold (fun list cmd -> list @ [evalCmd cmd]) []
     and evalCmd cmd =
@@ -361,7 +366,7 @@ let evalProgram program =
         | TNumeric (e,c) -> (c (eval context e))
         | TRepeat (e,block) ->
             let n = (eval context e)
-            console.log(sprintf "TRepeat %d" (int n))
+            //console.log(sprintf "TRepeat %d" (int n))
             ListHelpers.loop [1..(int n)] (fun _ -> evalCmds block)
         | TLet (id,e) ->
             context.Vars.[id] <- eval context e
@@ -369,7 +374,7 @@ let evalProgram program =
 
     evalCmds program
 
+// Parse a user drawing into a LazyDrawing
 let generate input =
     parse input |> Option.map evalProgram |> Option.map (fun x -> fun () -> x)
 
-let a = 10
