@@ -10,6 +10,13 @@ type ParseResult<'T> =
     | Success of 'T
     | Error of string
 
+module ParseResult =
+    [<CompiledName("Map")>]
+    let map f self =
+        match self with
+        | Error s -> Error s
+        | Success t -> t |> f |> Success
+
 type Parser<'T> = Parser of (string -> ParseResult<'T * string>)
 
 type BinOp =
@@ -324,13 +331,12 @@ let parse input =
     let r = run parseCommands input
     match r with
     | Error msg ->
-        console.log(msg); None
+        Error msg
     | Success (cmds,remainder) ->
         if remainder |> skipWhite |> atEnd then
-            Some cmds
+            Success cmds
         else
-            console.log(sprintf "Error: %s" remainder)
-            None
+            Error (sprintf "Syntax error at: %s" remainder)
 
 let rec eval context (expr : Expr) : float =
     let valOf e = eval context e
@@ -347,7 +353,11 @@ let rec eval context (expr : Expr) : float =
     | BinOp (Gt,a,b) -> (valOf a) > (valOf b) |> ofBool
     | BinOp (Ge,a,b) -> (valOf a) >= (valOf b) |> ofBool
     | Num n -> n
-    | Id id -> context.Vars.[id]
+    | Id id ->
+        try
+            context.Vars.[id]
+        with
+        | _ -> 0.0
 
 // Build a Drawing from a parse tree, evaluating Exprs
 let evalProgram program =
@@ -376,7 +386,7 @@ let evalProgram program =
 // Parse a user drawing into a LazyDrawing
 let generate input color =
     parse input
-        |> Option.map evalProgram
-        |> Option.map (fun d -> (PenColor color |> Turtle) :: d)
-        |> Option.map (fun x -> fun () -> x)
+        |> ParseResult.map evalProgram
+        |> ParseResult.map (fun d -> (PenColor color |> Turtle) :: d)
+        |> ParseResult.map (fun x -> fun () -> x)
 
