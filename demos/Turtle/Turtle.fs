@@ -62,7 +62,7 @@ let update msg model =
                   |> ColorShift.hsvToHex },
         Cmd.none
     | Run s ->
-        { model with UserDrawing = TurtleParser.generate s }, Cmd.none
+        { model with UserDrawing = TurtleParser.generate s model.Color }, Cmd.none
 
 // See original version of this demo for Elm here:
 // https://github.com/mrdimosthenis/turtle-graphics/blob/master/examples/SquareSpiral.elm
@@ -90,9 +90,12 @@ let drawSpirals color =
     }
 
 let drawTurtle model color =
-    match model.UserDrawing with
-    | Some drawing -> drawing
-    | _ -> drawSpirals color
+    match model.Input with
+    | "" -> drawSpirals color
+    | source ->
+        match (TurtleParser.generate source model.Color) with
+        | None -> drawSpirals color
+        | Some d -> d
 
 let log e =
     console.log(e)
@@ -104,7 +107,6 @@ turn 90
 forward 250
 
 penDown
-penColor "#00FF00"
 
 let d = 1
 repeat 600 {
@@ -124,7 +126,6 @@ turn 90
 forward 250
 
 penDown
-penColor "#00FF00"
 
 let d = 1
 repeat 200 {
@@ -153,6 +154,7 @@ let view model dispatch =
                         Textarea.Props [
                             Value model.Input
                             OnChange (fun e -> e.Value |> SetInput |> dispatch )
+                            OnKeyDown (fun e -> if e.key = "Enter" && e.altKey then model.Input |> Run |> dispatch)
                             Style [Height 500]
                         ] ] []
 
@@ -192,8 +194,6 @@ let view model dispatch =
                         str "repeat <expr> { <command-list> }"
                         ]
                     ]
-
-
                 ]
                 Column.column [ Column.Width (Screen.All, Column.IsTwoFifths) ] [
                     drawingcanvas

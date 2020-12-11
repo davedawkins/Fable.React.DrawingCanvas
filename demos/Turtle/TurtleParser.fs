@@ -264,7 +264,6 @@ let rec parseCommand =
                     | Some s -> s
                 Sub [
                     Canvas (FillColor fillColor)
-                    Canvas (StrokeColor "Black")
                     Canvas (FillRect (0., 0., 500., 500.))
                 ] |> TDrawCommand
             )
@@ -375,6 +374,9 @@ let evalProgram program =
     evalCmds program
 
 // Parse a user drawing into a LazyDrawing
-let generate input =
-    parse input |> Option.map evalProgram |> Option.map (fun x -> fun () -> x)
+let generate input color =
+    parse input
+        |> Option.map evalProgram
+        |> Option.map (fun d -> (PenColor color |> Turtle) :: d)
+        |> Option.map (fun x -> fun () -> x)
 

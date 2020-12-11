@@ -392,6 +392,17 @@ type DrawingCanvasProps =
     { Props: seq<IHTMLProp>
       Redraw: Redraw }
 
+let makeTurtle() =
+    { IsPenDown = false; LineCount = 0 }
+
+let resize (ctx : CanvasRenderingContext2D) =
+    ctx.canvas.width <- ctx.canvas.offsetWidth
+    ctx.canvas.height <- ctx.canvas.offsetHeight
+
+let runDrawing ctx drawing =
+    resize ctx
+    drawing() |> (ctx |> runCommands (makeTurtle()))
+
 type DrawingCanvas(initialProps) as self =
     inherit Component<DrawingCanvasProps, obj>(initialProps)
 
@@ -404,17 +415,12 @@ type DrawingCanvas(initialProps) as self =
                 | ce -> Some ce
 
     let drawNow () =
-        match canvasElement with
-        | None -> ()
-        | Some ce ->
+        canvasElement |> Option.map (fun ce ->
             let ctx = ce.getContext_2d ()
             match self.props.Redraw with
-            | Drawing d ->
-                let turtle = { IsPenDown = false; LineCount = 0 }
-                ctx.canvas.width <- ce.offsetWidth
-                ctx.canvas.height <- ce.offsetHeight
-                d() |> (ctx |> runCommands turtle)
+            | Drawing d -> runDrawing ctx d
             | DrawFunction f -> f ctx
+        ) |> ignore
 
     override this.render() =
         canvas
@@ -424,12 +430,13 @@ type DrawingCanvas(initialProps) as self =
            ]
            this.children
 
-    override this.componentDidMount() = drawNow ()
+    override this.componentDidMount() =
+        drawNow()
 
-    override this.componentDidUpdate(p, s) = drawNow ()
+    override this.componentDidUpdate(p, s) =
+        drawNow ()
 
 let drawingcanvas props = ofType<DrawingCanvas, _, _> props []
-
 
 module Builder =
     // https://stackoverflow.com/questions/23122639/how-do-i-write-a-computation-expression-builder-that-accumulates-a-value-and-als
