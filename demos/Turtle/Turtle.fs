@@ -153,6 +153,7 @@ let view model dispatch =
                         Textarea.Props [
                             Value model.Input
                             OnChange (fun e -> e.Value |> SetInput |> dispatch )
+                            OnKeyDown (fun e -> if e.key = "Enter" && e.altKey then model.Input |> Run |> dispatch)
                             Style [Height 500]
                         ] ] []
 
