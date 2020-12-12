@@ -83,6 +83,8 @@ type CanvasCommand =
 type TurtleCommand =
     | PenUp
     | PenDown
+    | Push
+    | Pop
     | PenColor of string
     | RotateHue of float
     | IncreaseWidth of float
@@ -239,6 +241,7 @@ let rec private runCommand (turtle : TurtleState) (ctx:CanvasRenderingContext2D)
         ctx.fillStyle <- rotateHueFromStyle ctx.fillStyle x
 
     | IncreaseLineWidth x ->
+        //console.log(sprintf "increaseLineWidth %f by %f" ctx.lineWidth x)
         ctx.lineWidth <- ctx.lineWidth + x
 
     | IncreaseGlobalAlpha x ->
@@ -254,15 +257,27 @@ let rec private runCommand (turtle : TurtleState) (ctx:CanvasRenderingContext2D)
         ctx.strokeStyle <- increaseBlueFromStyle ctx.strokeStyle x
 
     // Canvas2D API, with occasional helper like FillColor and StrokeColor
-    | Save -> ctx.save()
-    | Restore -> ctx.restore()
-    | BeginPath -> ctx.beginPath()
-    | Fill -> ctx.fill()
-    | Stroke -> ctx.stroke()
+    | Save ->
+        //console.log("save")
+        ctx.save()
+    | Restore ->
+        //console.log("restore")
+        ctx.restore()
+    | BeginPath ->
+        //console.log("beginPath")
+        ctx.beginPath()
+    | Fill ->
+        //console.log("fill")
+        ctx.fill()
+    | Stroke ->
+        //console.log("stroke")
+        ctx.stroke()
     | LineCap style -> ctx.lineCap <- style
     | LineDashOffset offset -> ctx.lineDashOffset <- offset
     | LineJoin style -> ctx.lineJoin <- style
-    | LineWidth n -> ctx.lineWidth <- n
+    | LineWidth n ->
+        //console.log(sprintf "lineWidth %f" n)
+        ctx.lineWidth <- n
     | ShadowBlur amount -> ctx.shadowBlur <- amount
     | ShadowColor color -> ctx.shadowColor <- color
     | ShadowOffsetX offset -> ctx.shadowOffsetX <- offset
@@ -278,8 +293,12 @@ let rec private runCommand (turtle : TurtleState) (ctx:CanvasRenderingContext2D)
     | StrokeStyle (Color s) -> ctx.strokeStyle <- U3.Case1(s)
     | StrokeStyle (Gradient g) -> ctx.strokeStyle <- U3.Case2(g)
     | StrokeStyle (Pattern p) -> ctx.strokeStyle <- U3.Case3(p)
-    | MoveTo (x,y) -> ctx.moveTo(x,y)
-    | LineTo (x,y) -> ctx.lineTo(x,y)
+    | MoveTo (x,y) ->
+        //console.log("moveTo")
+        ctx.moveTo(x,y)
+    | LineTo (x,y) ->
+        //console.log("lineTo")
+        ctx.lineTo(x,y)
     | ArcTo (x1,y1,x2,y2,r) -> ctx.arcTo(x1,y1,x2,y2,r)
     | Arc (x,y,r,startAngle,endAngle,acw) -> ctx.arc(x,y, r,startAngle,endAngle,acw)
     | Rotate a -> ctx.rotate(a)
@@ -322,15 +341,22 @@ let translateTurtle turtle cmd =
         | PenDown ->
             turtle.IsPenDown <- true
 
+        | Push ->
+            yield Save
+
+        | Pop ->
+            yield! Restore |> strokePathFirst
+
         | Forward n ->
-            if (turtle.LineCount = 0) then
+            if (turtle.LineCount = 0 && turtle.IsPenDown) then
                 yield BeginPath
                 yield MoveTo (0.0, 0.0)
 
             yield if (turtle.IsPenDown) then LineTo(n,0.0) else MoveTo(n,0.0)
             yield Translate(n,0.0)
 
-            turtle.LineCount <- turtle.LineCount + 1
+            if (turtle.IsPenDown) then
+                turtle.LineCount <- turtle.LineCount + 1
 
         | Turn a ->
             yield Rotate( a * Math.PI / 180.0 )

@@ -64,6 +64,57 @@ repeat 200 {
        increaseAlpha -0.005
 }"""
 
+    let clockSource = """clear "white"
+
+forward 250
+turn 90
+forward 250
+turn 180
+
+let tsecs = t / 1000
+let clockSecs = tsecs % 60
+let clockMin = (tsecs / 60) % 60
+let clockHr = (tsecs / 3600) % 12
+
+push
+repeat 12 {
+  turn 30
+  push
+    forward 210
+    increaseWidth 4
+    penDown
+      forward 6
+    penUp
+  pop
+}
+pop
+
+push
+  turn clockSecs * 6
+  penDown
+    penColor "silver"
+    forward 180
+  penUp
+pop
+
+push
+  turn clockMin * 6
+  penDown
+    increaseWidth 2
+    penColor "#999999"
+    forward 200
+  penUp
+pop
+
+push
+  turn clockHr * 30
+  penDown
+    increaseWidth 2
+    penColor "black"
+    forward 150
+  penUp
+pop"""
+
 let startTick (ms: int) (handler: unit -> unit): TickId = Some <| window.setInterval (handler, ms)
 
 let stopTick (id: TickId) =
@@ -99,37 +150,11 @@ let update msg model =
                   |> (ColorShift.rotateHue -0.005)
                   |> ColorShift.hsvToHex },
         Cmd.none
-    //| Run s ->
-    //    { model with UserDrawing = TurtleParser.generate s model.Color }, Cmd.none
     | Start -> model, Cmd.ofSub startTicking
     | Stop -> model, Cmd.ofSub (stopTicking model.Tick)
 
-(*
 // See original version of this demo for Elm here:
 // https://github.com/mrdimosthenis/turtle-graphics/blob/master/examples/SquareSpiral.elm
-
-let rec iter n dist =
-    turtle {
-        turn 89.5
-        forward dist
-        rotateHue 0.002
-        increaseWidth 0.02
-        increaseAlpha -0.005
-        ifThen (n > 0) (iter (n - 1) (dist + 2.5))
-    }
-
-let drawSpirals color =
-    turtle {
-        forward 250.0
-        turn 90.0
-        forward 250.0
-
-        penDown
-        penColor color
-
-        sub (iter 200 1.0)
-    }
-*)
 
 open Fable.React.DrawingCanvas.Builder
 
@@ -141,18 +166,18 @@ let drawMessage msg color = drawing {
     fillColor color
     fillText msg 4.0 24.0 9999.0
 }
-let drawTurtle model color =
+
+let drawTurtle model =
     let input = model.Input.Trim()
     match input with
     | "" -> drawMessage "Create your own drawing, or load an example to get started" "black"
     | _ ->
         match (TurtleParser.generate input model.Color) with
         // Error messages from crude parser are currently useless
-        | TurtleParser.ParseResult.Error msg -> drawMessage "Oops! Not a turtle" "orange"
-        | TurtleParser.ParseResult.Success d -> d
+        | TurtleParser.Parser.ParseResult.Error msg -> drawMessage "Oops! Not a turtle" "orange"
+        | TurtleParser.Parser.ParseResult.Success d -> d
 
 let log e = console.log (e)
-
 
 let view model dispatch =
     let ifTick a b = if model.Tick.IsSome then a else b
@@ -171,31 +196,34 @@ let view model dispatch =
                                                      OnKeyDown(fun e ->
                                                          if e.key = "Enter" && e.altKey then (ifTick Stop Start)
                                                                                              |> dispatch)
-                                                     Style [ Height 500 ] ] ] []
+                                                     Style [ Height 500; FontFamily "monospace"; FontSize "80%" ] ] ] []
 
-                Button.button [ Button.Props [ OnClick(fun _ ->
-                                                   Examples.squareSpiralsSource
-                                                   |> SetInput
-                                                   |> dispatch)
-                                               Style [ MarginTop 12 ] ] ] [
-                    str "Square Spirals"
-                ]
-
-                Button.button [ Button.Props [ OnClick(fun _ ->
-                                                   Examples.circleSpiralsSource
-                                                   |> SetInput
-                                                   |> dispatch)
-                                               Style [ MarginTop 12 ] ] ] [
-                    str "Circular Spirals"
-                ]
+                for title,source in
+                    [
+                        ("Square Spirals", Examples.squareSpiralsSource)
+                        ("Circular Spirals", Examples.circleSpiralsSource)
+                        ("Clock", Examples.clockSource)
+                    ] do
+                    Button.button [ Button.Props [ OnClick(fun _ ->
+                                                       source
+                                                       |> SetInput
+                                                       |> dispatch)
+                                                   Style [ MarginTop 12; MarginLeft 4 ] ] ] [
+                        str title
+                    ]
 
                 Text.p [ Props [ Style [ FontSize "60%"
                                          MarginTop "12px" ] ] ] [
                     pre [] [
                         str "Alt-Enter (Option-Enter) to toggle animation\n\n"
+                        str "Globals\n"
+                        str "--------\n"
+                        str "t - current time in ms\n\n"
                         str "Commands\n"
                         str "--------\n"
                         str "let <id> = <expr>\n"
+                        str "push\n"
+                        str "pop\n"
                         str "penUp\n"
                         str "penDown\n"
                         str "penColor \"<color>\"\n"
@@ -205,7 +233,12 @@ let view model dispatch =
                         str "increaseAlpha <expr>\n"
                         str "increaseWidth <expr>\n"
                         str "rotateHue <expr>\n"
-                        str "repeat <expr> { <command-list> }"
+                        str "repeat <expr> { <command-list> }\n\n"
+                        str "Float Expressions\n"
+                        str "-----------------\n"
+                        str "<literal> | <expr> <bin-op> <expr> | ( <expr> )\n"
+                        str "Literal examples: 0.1, 1, 2.0, -3, -3.14\n"
+                        str "Binary ops: + | - | * | / | % (mod) | + | -\n"
                     ]
                 ]
             ]
@@ -215,7 +248,7 @@ let view model dispatch =
                           [ Style [ Background "#333333"
                                     Width 500
                                     Height 500 ] ]
-                      Redraw = model.Color |> drawTurtle model |> Drawing }
+                      Redraw = model |> drawTurtle |> Drawing }
                 //Label.label [] [
                 //    str "Select base colour"
                 //]
