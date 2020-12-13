@@ -7,6 +7,7 @@
 | <img src="./images/fractal.png" width="64"> | __[Interactive Fractals](https://davedawkins.github.io/Fable.React.DrawingCanvas/fractal)__ |
 | <img src="./images/particles.png" width="64"> | __[20,000 Particles](https://davedawkins.github.io/Fable.React.DrawingCanvas/particles)__ |
 | <img src="./images/turtle.png" width="64"> | __[Turtle Graphics](https://davedawkins.github.io/Fable.React.DrawingCanvas/turtle)__ |
+| <img src="./images/bubbles.gif" width="64"> | __[Bubbles](https://davedawkins.github.io/Fable.React.DrawingCanvas/bubbles)__ |
 
 ## About
 
