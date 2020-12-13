@@ -138,9 +138,7 @@ Supported commands are
 | `repeat seq<T> f`   | Repeated sub turtle drawing returned from function f. Type of f is `T -> (unit -> Drawing)`|
 | `sub` d             | Include the sub-drawing d at this point. This is how you include drawings from functions
 
-More commands are on their way.
-
-Some of these commands are ported from the Elm library [turtle-graphics](https://github.com/mrdimosthenis/turtle-graphics), which is where the turtle demo comes from (see (SquareSpiral.elm)[https://raw.githubusercontent.com/mrdimosthenis/turtle-graphics/master/examples/SquareSpiral.elm] and (SquareSpiral.png)[https://raw.githubusercontent.com/mrdimosthenis/turtle-graphics/master/examples/SquareSpiral.png])
+Some of these commands are ported from the Elm library [turtle-graphics](https://github.com/mrdimosthenis/turtle-graphics), which is where the turtle demo comes from (see [SquareSpiral.elm](https://raw.githubusercontent.com/mrdimosthenis/turtle-graphics/master/examples/SquareSpiral.elm) and [SquareSpiral.png](https://raw.githubusercontent.com/mrdimosthenis/turtle-graphics/master/examples/SquareSpiral.png))
 
 Examples that draw squares:
 ```fsharp
