@@ -26,9 +26,9 @@ This is a Fable React wrapper for `canvas` that allows you to declare a drawing 
                 beginPath
                 arc 0.0 0.0 195.0 0.0 (2.0 * Math.PI) false
                 stroke
-            }
+            })
             Props = [ ]
-        })
+        }
     ]
 ```
 
