@@ -274,6 +274,9 @@ Available from NuGet as `Fable.React.DrawingCanvas`.
 
 ## Revision History
 
+*1.3*
+- Update fable and dependencies
+
 *1.2*
 - More turtle support to implement spiral demo
 

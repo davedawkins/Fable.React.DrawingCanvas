@@ -216,3 +216,4 @@ mocha/yarn\.lock
 interopFableFromJS/yarn\.lock
 
 src/.idea
+**/fable_modules

@@ -136,13 +136,13 @@ let drawParticles model (ctx: CanvasRenderingContext2D) =
     for i in [ 0 .. (numParticles - 1) ] do
         let p = particles.[i]
 
-        let n =
-            int (Math.Floor(p.X) + Math.Floor(p.Y) * w) * 4
-
-        b.[n] <- Color
-        b.[n + 1] <- Color
-        b.[n + 2] <- Color
-        b.[n + 3] <- uint8 255
+        let x, y = Math.Floor(p.X), Math.Floor(p.Y)
+        if x >= 0 && y >= 0 && x < w && y < h then
+            let n = int (x + y * w) * 4
+            b.[n] <- Color
+            b.[n + 1] <- Color
+            b.[n + 2] <- Color
+            b.[n + 3] <- uint8 255
 
     ctx.putImageData (a, 0., 0.)
 
