@@ -8,7 +8,7 @@
     <PackageIconUrl></PackageIconUrl>
     <PackageTags>fsharp;fable</PackageTags>
     <Authors>Dave Dawkins</Authors>
-    <Version>1.3.0</Version>
+    <Version>1.3.1</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
